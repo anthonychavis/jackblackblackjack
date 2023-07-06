@@ -1,9 +1,7 @@
 // create prompting fxn & allow users to exit the program
 const prompt = require('prompt-sync')({ sigint: true });
 
-// have a card - CLASS
-// deck of 52 cards - CLASS
-// deck should be shuffled
+// have a card - CLASS (why have card class ??)
 // deal the cards from deck
 // players should have a hand of dealt cards
 // players need money
@@ -11,18 +9,45 @@ const prompt = require('prompt-sync')({ sigint: true });
 // track money transfer - win/loss amounts
 // implement rules for blackjack
 
+/*
+ * GLOBAL VARS (for now)
+ */
+// let deck = [];
+let shuffledDeck;
+
+/*
+ * CLASSES
+ */
 class Card {
-    // constructor to accept card suit and value
-    // constructor to return string representation of card
-    constructor({ face, suit, value }) {
-        this.face = face;
-        this.suit = suit;
-        this.value = value;
+    // constructor to accept card suit and value -- ?? why?
+    // constructor to return string representation of card - ?? WHAT ?
+
+    #topCard;
+    #value;
+
+    constructor() {
+        this.revealCard();
     }
+
+    #dealTopCard() {
+        this.#topCard = shuffledDeck.pop();
+        this.#value = this.#topCard.value;
+        return;
+    }
+
+    revealCard() {
+        this.#dealTopCard();
+        return this.#topCard.face + this.#topCard.suit[0].toUpperCase();
+    }
+
+    get value() {
+        return this.#value;
+    } // needed?
 }
 
 class Deck {
-    deck = [];
+    deck = []; // make private
+    // shuffledDeck;
     suits = ['spade', 'club', 'heart', 'diamond'];
     strCardsFace = {
         1: 'A',
@@ -45,7 +70,7 @@ class Deck {
     }
 
     deckGen() {
-        // {face: ##, suit: ##, value##}
+        // {face: ##, suit: ##, value: ##}
         let cardObj;
 
         for (let suit of this.suits) {
@@ -62,16 +87,19 @@ class Deck {
     }
 
     shuffle() {
-        this.deckGen();
+        if (!this.deck.length) this.deckGen();
+
+        shuffledDeck = [...this.deck]; // something if not yet shuffled ??
 
         // Durstenfeld shuffle
-        for (let i = this.deck.length - 1; i > 0; i--) {
+        for (let i = shuffledDeck.length - 1; i > 0; i--) {
             const ranNum = Math.floor(Math.random() * (i + 1));
-            [this.deck[i], this.deck[ranNum]] = [
-                this.deck[ranNum],
-                this.deck[i],
+            [shuffledDeck[i], shuffledDeck[ranNum]] = [
+                shuffledDeck[ranNum],
+                shuffledDeck[i],
             ];
         }
+
         return;
     }
 }
@@ -87,19 +115,29 @@ class Moola {
     constructor() {}
 }
 
-class Player {
-    constructor() {}
-}
+// class Player {
+//     #moolaBalance
+
+//     constructor() {
+//         this.#moolaBalance = new Moola()
+//     }
+// }
 
 const deck1 = new Deck();
-console.log(deck1.deck);
-console.log(deck1.deck.length);
+// console.log(shuffledDeck);
+console.log(shuffledDeck.length);
 
-const plyr1 = new Player();
-const dealer = new Player(); // maybe extend a Dealer class from Player class
+const aCard = new Card();
+// console.log(aCard);
+console.log(aCard.value);
+console.log(shuffledDeck.length);
+
+// console.log(
+
+// const plyr1 = new Player();
+// const dealer = new Player(); // maybe extend a Dealer class from Player class
 
 /**
  * player - CLASS ??
- * maybe start w/ one player + dealer to get it going, then go back & make multiplayer ??
- *
+ * REMEMBER to make classes/methods private (maybe)
  */
