@@ -118,13 +118,19 @@ class Deck {
 
 //
 class Moola {
+    #moola = 10_000;
+
     // play until some player loses all money
     constructor() {}
+
+    get moola() {
+        return this.#moola;
+    }
 }
 
 //
 class Player {
-    #moolaBalance = new Moola(); // dealer doesn't need moola. so, separate this - Player extends to something & dealer Class || something extends to Player & dealer Class ??
+    #plyrMoola = new Moola(); // dealer doesn't need moola. so, separate this - Player extends to something & dealer Class || something extends to Player & dealer Class ??
     currentHand = []; // put into hand Class
 
     constructor() {
@@ -143,6 +149,15 @@ class Player {
 
     handVal() {
         return this.currentHand.reduce((sum, card) => (sum += card.value), 0);
+    } // could go to Hand Class ?? probably
+
+    addCard() {
+        this.currentHand.push(new Card());
+        return;
+    } // could go to Hand Class ?? probably
+
+    get moola() {
+        return this.#plyrMoola.moola;
     }
 }
 
@@ -150,23 +165,38 @@ class Player {
 
 const initBJ = () => {
     console.log(`
-                        Are you ready to play BJ?`);
+    Are you ready to play BJ?`);
     let newTable = prompt(`
-                        (y/n) >> `);
-
-    if (newTable.toLowerCase() === 'y') {
+    (y/n) >> `)
+        .trim()
+        .toLowerCase();
+    if (newTable === 'y') {
         // request player name ?? - indicate no special chars (add message apologizing for not currently allowing special chars) ?? - verify chars entered
         // request moola amt || set automatic moola amt
 
         const deck1 = new Deck();
-        // console.log(shuffledDeck);
-        // console.log(shuffledDeck.length);
 
-        // const aCard = new Card();
-        // console.log(aCard.value);
-        // console.log(shuffledDeck.length);
+        const invalidInput = () =>
+            console.error(`
+        Whoa! Might wanna slow down on the drinks, friend. Starting to slur your answers. Try answering again.`);
 
-        // const initPlayers = () => {};
+        const anotherTimeMssg = () =>
+            console.log(`
+                            Perhaps another time.`);
+
+        const askPlayAgain = () =>
+            console.log(`
+                        Would you like to play another hand?`);
+
+        const printHandsPreReveal = () =>
+            console.log(`
+                            The dealer's cards are:
+                            ${dealer.privateHand()}
+    
+                            Your cards are:
+                            ${plyr1.showHand()}
+                            The value of your hand is ${plyr1.handVal()}.
+                            `);
 
         const dealCards = (plyr, dealer) => {
             plyr.currentHand.push(new Card());
@@ -179,38 +209,90 @@ const initBJ = () => {
         const plyr1 = new Player(); // sub var for player name retrieved from prompt?
         const dealer = new Player(); // maybe extend a Dealer class from Player class
 
-        // deal cards to players
-        dealCards(plyr1, dealer);
+        const playHand = () => {
+            // deal cards to players
+            dealCards(plyr1, dealer);
 
-        // use string interpolation for easier understanding (ux)
-        // show hand of player + value & dealer (1 card face down)
-        // consider showing how far from 21 the hand val is ??
-        console.log(`
-                            The dealers cards are:
-                            ${dealer.privateHand()}
+            // /*
+            // while loop to replace nested conditionals
+            let playing = true;
+            while (playing) {
+                printHandsPreReveal();
 
-                            Your cards are:
-                            ${plyr1.showHand()}
-                            The value of your hand is ${plyr1.handVal()}.
-                            `);
+                if (plyr1.handVal() == 21) {
+                    playing = false;
 
-        if (plyr1.handVal() == 21) {
-            console.log(`You won!`);
-            // add rest of winning mssg
-            // prompt to play another hand
-            // yes ? check if "enough" cards in deck to play another hand or if have to reshuffle
-        }
+                    console.log(`
+                            You won!`); // unless tied ?? - see rules from link
+                    // add rest of winning mssg
+                    // prompt to play another hand
+                    // yes ? check if "enough" cards in deck to play another hand or if have to reshuffle
 
-        console.log(`
+                    //add wager to moola
+
+                    //
+                    askPlayAgain();
+
+                    // prompt to play another hand - include wager ?? see rules from link
+                    //      --> can't wager more than stash of moola
+                } else if (plyr1.handVal() > 21) {
+                    playing = false;
+
+                    console.log(`
+                            You've lost this hand.`);
+
+                    // subtract wager from moola
+
+                    // IF moola > 0, prompt to play another hand - include wager ?? see rules from link
+                    if (plyr1.moola) {
+                        askPlayAgain();
+                        let playAgainPrompt = prompt(`
+                            (y/n) >> `)
+                            .trim()
+                            .toLowerCase();
+
+                        switch (playAgainPrompt) {
+                            case 'y':
+                                playHand();
+                                break;
+                            case 'n':
+                                anotherTimeMssg();
+                                break;
+                            default:
+                                invalidInput(); // finish this default
+                        }
+                    } else {
+                        console.log(`
+                            Seems you've no coin to wager, friend.`);
+                    }
+                } else {
+                    console.log(`
                             Would you like another card?`);
-        let hitOrHold = prompt(`
-                            (y/n) >> `);
+                    let hitOrHold = prompt(`
+                            (y/n) >> `)
+                        .trim()
+                        .toLowerCase();
 
-        // want card ? fxn[give card & replay previous console.log & prompt hitorhold again] & end if went over: run dealer hand logic, end if went over & dealer.showHand
-        // add message about invalid entry ??
-    } else {
-        console.log('Perhaps another time.');
-    } // add prompt indicating that the reply should be Y or N if it wasn't
+                    switch (hitOrHold) {
+                        case 'y':
+                            plyr1.addCard();
+                            break;
+                        case 'n':
+                            anotherTimeMssg();
+                            playing = false;
+                            break;
+                        default:
+                            invalidInput(); // finish this default
+                    }
+                }
+            }
+            console.log(plyr1.moola);
+
+            return;
+        };
+        playHand();
+    }
+    return;
 };
 
 initBJ();
@@ -219,14 +301,18 @@ console.log(shuffledDeck?.length); // optional chain b/c moved globals into init
 
 /**
  * for Ace, use typeof?? & calculate handVal - if max less than 21, apply max, otherwise apply min
- *  if bulding rules, explain why the 1st dealer card is face down
- * player - CLASS ??
+ *  if bulding rules,
+ * --> explain shown cards format
+ *      --> what S, C, H, & D are in printed cards
+ *      --> explain why the 1st dealer card is face down
+ * player - CLASS ?? [probably]
  * methods of Hand CLASS for showFullHand (always for player & only at end of round for dealer) & initDealerHandShow (for when one card is face down) ??
  * REMEMBER to make fields/methods private (maybe)
  * use modules
  * use typescript
  * separate prompts into fxns ??
- * fix extra prompt/key !! [FIXED]
+ * use while loop instead of nested conditionals ??
+ *make sure the shuffledDeck decreases each hand
  *
  * based on "face up" value of player hand && dealer handVal relative to 21, dealer decides hitOrHold ??
  * --> have dealer be more conservative/aggro at random ??
@@ -235,4 +321,6 @@ console.log(shuffledDeck?.length); // optional chain b/c moved globals into init
  * --> transfer moola accordingly
  * --> print winner, how they won, amt moola transferred, moola balance
  * --> prompt to play another hand if moola != 0
+ *
+ * fix extra prompt/key !! [FIXED]
  */
