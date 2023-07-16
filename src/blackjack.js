@@ -103,14 +103,31 @@ class Deck {
 }
 
 //
-// class Hand {
-//     // initiate hand - acct for dealer
-//     // a reset of the class fxns (maybe??)
+class Hand {
+    // a reset of the class fxns (maybe??)
 
-//     allCards = [];
+    // allCards = []; // what was this for ??
+    currentHand = [];
 
-//     constructor() {}
-// }
+    constructor() {}
+
+    showHand() {
+        return this.currentHand.map(card => card.revealCard()).join(' | ');
+    }
+
+    handVal() {
+        return this.currentHand.reduce((sum, card) => (sum += card.value), 0);
+    }
+
+    addCard() {
+        this.currentHand.push(new Card());
+        return;
+    }
+
+    resetHand() {
+        return (this.currentHand = []);
+    }
+}
 
 //
 class Moola {
@@ -125,35 +142,13 @@ class Moola {
 }
 
 //
-class Player {
+class Player extends Hand {
     #plyrMoola = new Moola(); // dealer doesn't need moola. so, separate this - Player extends Hand, Dealer extends Hand
-    currentHand = []; // put into hand Class
+    // currentHand = []; // put into hand Class
 
     constructor() {
         // this.currentHand = new Hand();
-    }
-
-    showHand() {
-        return this.currentHand.map(card => card.revealCard()).join(' | ');
-    } // could go to Hand Class ?? probably
-
-    privateHand() {
-        let [, ...hand] = this.currentHand;
-        const upCards = hand.map(el => el.revealCard());
-        return `** | ${upCards.join(' | ')}`;
-    } // could go to Hand Class ?? probably
-
-    handVal() {
-        return this.currentHand.reduce((sum, card) => (sum += card.value), 0);
-    } // could go to Hand Class ?? probably
-
-    addCard() {
-        this.currentHand.push(new Card());
-        return;
-    } // could go to Hand Class ?? probably
-
-    resetHand() {
-        return (this.currentHand = []);
+        super();
     }
 
     get moola() {
@@ -161,7 +156,17 @@ class Player {
     }
 }
 
-// console.log(
+class Dealer extends Hand {
+    constructor() {
+        super();
+    }
+
+    privateHand() {
+        let [, ...hand] = this.currentHand;
+        const upCards = hand.map(el => el.revealCard());
+        return `** | ${upCards.join(' | ')}`;
+    } // back to Hand if multiplayer
+}
 
 const initBJ = () => {
     console.log(`
@@ -196,7 +201,7 @@ const initBJ = () => {
                             Your cards are:
                             ${plyr1.showHand()}
                             The value of your hand is ${plyr1.handVal()}.
-                            `);
+                            `); // make dealer/plyr params
 
         const dealCards = (plyr, dealer) => {
             plyr.currentHand.push(new Card());
@@ -208,7 +213,7 @@ const initBJ = () => {
 
         // instantiate players
         const plyr1 = new Player(); // sub var for player name retrieved from prompt?
-        const dealer = new Player(); // maybe extend a Dealer class from Player class
+        const dealer = new Dealer(); // maybe extend a Dealer class from Player class
 
         const playHand = () => {
             // deal cards to players
