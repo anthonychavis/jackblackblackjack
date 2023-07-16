@@ -193,7 +193,7 @@ const initBJ = () => {
             console.log(`
                         Would you like to play another hand?`);
 
-        const printHandsPreReveal = (dealer, player) =>
+        const printHandsPreReveal = (player, dealer) =>
             console.log(`
                             The dealer's cards are:
                             ${dealer.privateHand()}
@@ -223,7 +223,7 @@ const initBJ = () => {
             // while loop to replace nested conditionals
             let playing = true;
             while (playing) {
-                printHandsPreReveal(dealer, plyr1);
+                printHandsPreReveal(plyr1, dealer);
 
                 if (plyr1.handVal() == 21) {
                     playing = false;
