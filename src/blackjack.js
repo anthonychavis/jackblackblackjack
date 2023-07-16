@@ -104,10 +104,9 @@ class Deck {
 
 //
 class Hand {
-    // a reset of the class fxns (maybe??)
-
     // allCards = []; // what was this for ??
     currentHand = [];
+    // #handValue = 0;
 
     constructor() {}
 
@@ -115,7 +114,11 @@ class Hand {
         return this.currentHand.map(card => card.revealCard()).join(' | ');
     }
 
-    handVal() {
+    handValFxn() {
+        // return this.currentHand.reduce(
+        //     (sum, card) => (sum += card.value),
+        //     this.#handValue
+        // );
         return this.currentHand.reduce((sum, card) => (sum += card.value), 0);
     }
 
@@ -125,7 +128,13 @@ class Hand {
     }
 
     resetHand() {
-        return (this.currentHand = []);
+        // this.#handValue = 0; // use setter ??
+        this.currentHand = [];
+        return;
+    }
+
+    get handVal() {
+        return this.handValFxn();
     }
 }
 
@@ -143,11 +152,9 @@ class Moola {
 
 //
 class Player extends Hand {
-    #plyrMoola = new Moola(); // dealer doesn't need moola. so, separate this - Player extends Hand, Dealer extends Hand
-    // currentHand = []; // put into hand Class
+    #plyrMoola = new Moola();
 
     constructor() {
-        // this.currentHand = new Hand();
         super();
     }
 
@@ -156,6 +163,7 @@ class Player extends Hand {
     }
 }
 
+//
 class Dealer extends Hand {
     constructor() {
         super();
@@ -168,6 +176,7 @@ class Dealer extends Hand {
     } // back to Hand if multiplayer
 }
 
+//
 const initBJ = () => {
     const ynPrompt = () =>
         prompt(`
@@ -197,6 +206,14 @@ const initBJ = () => {
             console.log(`
                         Would you like to play another hand?`);
 
+        const youWon = () =>
+            `
+                            You won!`;
+
+        const youLost = () =>
+            `
+                            You've lost this hand.`;
+
         const printHandsPreReveal = (player, dealer) =>
             console.log(`
                             The dealer's cards are:
@@ -204,8 +221,12 @@ const initBJ = () => {
     
                             Your cards are:
                             ${player.showHand()}
-                            The value of your hand is ${player.handVal()}.
+                            The value of your hand is ${player.handVal}.
                             `);
+
+        const handsComp = (player, dealer) => {
+            return player.handVal > dealer.handVal ? youWon() : youLost();
+        }; // tie goes to house
 
         const dealCards = (plyr, dealer) => {
             plyr.currentHand.push(new Card());
@@ -232,11 +253,9 @@ const initBJ = () => {
             while (playing) {
                 printHandsPreReveal(plyr1, dealer);
 
-                if (plyr1.handVal() == 21) {
+                if (plyr1.handVal == 21) {
                     playing = false;
-
-                    console.log(`
-                            You won!`); // unless tied ?? - see rules from link
+                    console.log(youWon()); // unless tied ?? - see rules from link
                     // add rest of winning mssg
                     // prompt to play another hand
                     // yes ? check if "enough" cards in deck to play another hand or if have to reshuffle
@@ -248,12 +267,9 @@ const initBJ = () => {
 
                     // prompt to play another hand - include wager ?? see rules from link
                     //      --> can't wager more than stash of moola
-                } else if (plyr1.handVal() > 21) {
+                } else if (plyr1.handVal > 21) {
                     playing = false;
-
-                    console.log(`
-                            You've lost this hand.`);
-
+                    console.log(youLost());
                     // subtract wager from moola
 
                     // reset hand
@@ -288,6 +304,25 @@ const initBJ = () => {
                             plyr1.addCard();
                             break;
                         case 'n':
+                            // add the dealer hitOrHold logic -- add logic to show loss as soon as over 21
+
+                            // reveal cards
+                            // show hands val
+                            // comp hands - state who won
+                            // use object ?? maybe not since need to access key -- // change if multiplayer
+                            console.log(`
+                            The dealer's cards are:
+                            ${dealer.showHand()}
+                            The value of the dealer's hand is ${dealer.handVal}.
+
+                            Your cards are:
+                            ${plyr1.showHand()}
+                            The value of your hand is ${plyr1.handVal}.
+                            
+                            ${handsComp(plyr1, dealer)}`);
+
+                            // move moola
+
                             playing = false;
                             askPlayAgain();
                             let handOrDone = ynPrompt();
