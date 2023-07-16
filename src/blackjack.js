@@ -193,15 +193,15 @@ const initBJ = () => {
             console.log(`
                         Would you like to play another hand?`);
 
-        const printHandsPreReveal = () =>
+        const printHandsPreReveal = (dealer, player) =>
             console.log(`
                             The dealer's cards are:
                             ${dealer.privateHand()}
     
                             Your cards are:
-                            ${plyr1.showHand()}
-                            The value of your hand is ${plyr1.handVal()}.
-                            `); // make dealer/plyr params
+                            ${player.showHand()}
+                            The value of your hand is ${player.handVal()}.
+                            `);
 
         const dealCards = (plyr, dealer) => {
             plyr.currentHand.push(new Card());
@@ -223,7 +223,7 @@ const initBJ = () => {
             // while loop to replace nested conditionals
             let playing = true;
             while (playing) {
-                printHandsPreReveal();
+                printHandsPreReveal(dealer, plyr1);
 
                 if (plyr1.handVal() == 21) {
                     playing = false;
