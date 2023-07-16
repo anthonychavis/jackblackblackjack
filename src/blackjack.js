@@ -220,6 +220,9 @@ const initBJ = () => {
         const dealer = new Dealer(); // maybe extend a Dealer class from Player class
 
         const playHand = () => {
+            plyr1.resetHand();
+            dealer.resetHand();
+
             // deal cards to players
             dealCards(plyr1, dealer);
 
