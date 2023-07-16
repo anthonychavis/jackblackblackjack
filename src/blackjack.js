@@ -139,7 +139,7 @@ class Moola {
     get moola() {
         return this.#moola;
     }
-}
+} // able to increase bet position before card reveal ?? - see site how2play
 
 //
 class Player extends Hand {
@@ -171,7 +171,7 @@ class Dealer extends Hand {
 const initBJ = () => {
     const ynPrompt = () =>
         prompt(`
-    (y/n) >> `)
+                (y/n) >> `)
             .trim()
             .toLowerCase();
 
@@ -283,17 +283,14 @@ const initBJ = () => {
                     console.log(`
                             Would you like another card?`);
                     let hitOrHold = ynPrompt();
-
                     switch (hitOrHold) {
                         case 'y':
                             plyr1.addCard();
                             break;
                         case 'n':
-                            // anotherTimeMssg();
-                            // playing = false;
+                            playing = false;
                             askPlayAgain();
                             let handOrDone = ynPrompt();
-
                             switch (handOrDone) {
                                 case 'y':
                                     playHand();
@@ -301,6 +298,10 @@ const initBJ = () => {
                                 case 'n':
                                     anotherTimeMssg();
                                     playing = false;
+                                    // reveal cards
+                                    // show score
+                                    // state who won
+                                    // move moola
                                     break;
                                 default:
                                     invalidInput(); // finish this default
@@ -311,7 +312,7 @@ const initBJ = () => {
                     }
                 }
             }
-            console.log(plyr1.moola);
+            console.log(plyr1.moola); // prints 2x; move ??
 
             return;
         };
