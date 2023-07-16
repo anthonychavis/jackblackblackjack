@@ -106,7 +106,6 @@ class Deck {
 class Hand {
     // allCards = []; // what was this for ??
     currentHand = [];
-    // #handValue = 0;
 
     constructor() {}
 
@@ -115,10 +114,6 @@ class Hand {
     }
 
     handValFxn() {
-        // return this.currentHand.reduce(
-        //     (sum, card) => (sum += card.value),
-        //     this.#handValue
-        // );
         return this.currentHand.reduce((sum, card) => (sum += card.value), 0);
     }
 
@@ -128,7 +123,6 @@ class Hand {
     }
 
     resetHand() {
-        // this.#handValue = 0; // use setter ??
         this.currentHand = [];
         return;
     }
@@ -194,6 +188,9 @@ const initBJ = () => {
 
         const deck1 = new Deck();
 
+        /*
+         * Gaming Fxns
+         */
         const invalidInput = () =>
             console.error(`
         Whoa! Might wanna slow down on the drinks, friend. Starting to slur your answers. Try answering again.`);
@@ -236,19 +233,27 @@ const initBJ = () => {
             return;
         }; // don't technically need to deal one card@time, but dont need to do this irl either. so, keepin it the same. if performance would suffer, could snatch last two cards in shuffled arr/"person" at once to improve
 
-        // instantiate players
+        /*
+         * Instantiate Players
+         */
         const plyr1 = new Player(); // sub var for player name retrieved from prompt?
         const dealer = new Dealer(); // maybe extend a Dealer class from Player class
 
+        /*
+         * Deal New Hand
+         */
         const playHand = () => {
-            plyr1.resetHand();
-            dealer.resetHand();
+            if (dealer.handVal) {
+                plyr1.resetHand();
+                dealer.resetHand();
+            }
 
             // deal cards to players
             dealCards(plyr1, dealer);
 
-            // /*
-            // while loop to replace nested conditionals
+            /*
+             * Playing While Loop
+             */
             let playing = true;
             while (playing) {
                 printHandsPreReveal(plyr1, dealer);
