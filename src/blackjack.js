@@ -169,12 +169,16 @@ class Dealer extends Hand {
 }
 
 const initBJ = () => {
+    const ynPrompt = () =>
+        prompt(`
+    (y/n) >> `)
+            .trim()
+            .toLowerCase();
+
     console.log(`
     Are you ready to play BJ?`);
-    let newTable = prompt(`
-    (y/n) >> `)
-        .trim()
-        .toLowerCase();
+    let newTable = ynPrompt();
+
     if (newTable === 'y') {
         // request player name ?? - indicate no special chars (add message apologizing for not currently allowing special chars) ?? - verify chars entered
         // request moola amt || set automatic moola amt
@@ -256,10 +260,7 @@ const initBJ = () => {
                     // IF moola > 0, prompt to play another hand - include wager ?? see rules from link
                     if (plyr1.moola) {
                         askPlayAgain();
-                        let playAgainPrompt = prompt(`
-                            (y/n) >> `)
-                            .trim()
-                            .toLowerCase();
+                        let playAgainPrompt = ynPrompt();
 
                         switch (playAgainPrompt) {
                             case 'y':
@@ -278,10 +279,7 @@ const initBJ = () => {
                 } else {
                     console.log(`
                             Would you like another card?`);
-                    let hitOrHold = prompt(`
-                            (y/n) >> `)
-                        .trim()
-                        .toLowerCase();
+                    let hitOrHold = ynPrompt();
 
                     switch (hitOrHold) {
                         case 'y':
@@ -291,10 +289,7 @@ const initBJ = () => {
                             // anotherTimeMssg();
                             // playing = false;
                             askPlayAgain();
-                            let handOrDone = prompt(`
-                            (y/n) >> `)
-                                .trim()
-                                .toLowerCase();
+                            let handOrDone = ynPrompt();
 
                             switch (handOrDone) {
                                 case 'y':
