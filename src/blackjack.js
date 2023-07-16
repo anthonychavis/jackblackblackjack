@@ -1,10 +1,6 @@
 // create prompting fxn & allow users to exit the program
 const prompt = require('prompt-sync')({ sigint: true });
 
-// have a card - CLASS
-// deal the cards from deck
-// players should have a hand of dealt cards
-// players need money
 // players need to bet money
 // track money transfer - win/loss amounts
 // implement rules for blackjack
@@ -130,7 +126,7 @@ class Moola {
 
 //
 class Player {
-    #plyrMoola = new Moola(); // dealer doesn't need moola. so, separate this - Player extends to something & dealer Class || something extends to Player & dealer Class ??
+    #plyrMoola = new Moola(); // dealer doesn't need moola. so, separate this - Player extends Hand, Dealer extends Hand
     currentHand = []; // put into hand Class
 
     constructor() {
@@ -155,6 +151,10 @@ class Player {
         this.currentHand.push(new Card());
         return;
     } // could go to Hand Class ?? probably
+
+    resetHand() {
+        return (this.currentHand = []);
+    }
 
     get moola() {
         return this.#plyrMoola.moola;
@@ -203,6 +203,7 @@ const initBJ = () => {
             dealer.currentHand.push(new Card());
             plyr.currentHand.push(new Card());
             dealer.currentHand.push(new Card());
+            return;
         }; // don't technically need to deal one card@time, but dont need to do this irl either. so, keepin it the same. if performance would suffer, could snatch last two cards in shuffled arr/"person" at once to improve
 
         // instantiate players
@@ -243,6 +244,10 @@ const initBJ = () => {
 
                     // subtract wager from moola
 
+                    // reset hand
+                    plyr1.resetHand();
+                    dealer.resetHand();
+
                     // IF moola > 0, prompt to play another hand - include wager ?? see rules from link
                     if (plyr1.moola) {
                         askPlayAgain();
@@ -278,8 +283,25 @@ const initBJ = () => {
                             plyr1.addCard();
                             break;
                         case 'n':
-                            anotherTimeMssg();
-                            playing = false;
+                            // anotherTimeMssg();
+                            // playing = false;
+                            askPlayAgain();
+                            let handOrDone = prompt(`
+                            (y/n) >> `)
+                                .trim()
+                                .toLowerCase();
+
+                            switch (handOrDone) {
+                                case 'y':
+                                    playHand();
+                                    break;
+                                case 'n':
+                                    anotherTimeMssg();
+                                    playing = false;
+                                    break;
+                                default:
+                                    invalidInput(); // finish this default
+                            }
                             break;
                         default:
                             invalidInput(); // finish this default
