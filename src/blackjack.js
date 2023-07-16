@@ -193,7 +193,7 @@ const initBJ = () => {
          */
         const invalidInput = () =>
             console.error(`
-        Whoa! Might wanna slow down on the drinks, friend. Starting to slur your answers. Try answering again.`);
+        WHOA! Might wanna slow down on the drinks, friend. Starting to slur your answers. Try answering again.`);
 
         const anotherTimeMssg = () =>
             console.log(`
@@ -225,6 +225,23 @@ const initBJ = () => {
             return player.handVal > dealer.handVal ? youWon() : youLost();
         }; // tie goes to house
 
+        const playAgainSwitch = () => {
+            let playAgainPrompt = ynPrompt();
+
+            switch (playAgainPrompt) {
+                case 'y':
+                    playHand();
+                    break;
+                case 'n':
+                    anotherTimeMssg();
+                    break;
+                default:
+                    invalidInput();
+                    askPlayAgain();
+                    playAgainSwitch();
+            }
+        };
+
         const dealCards = (plyr, dealer) => {
             plyr.currentHand.push(new Card());
             dealer.currentHand.push(new Card());
@@ -248,7 +265,6 @@ const initBJ = () => {
                 dealer.resetHand();
             }
 
-            // deal cards to players
             dealCards(plyr1, dealer);
 
             /*
@@ -267,35 +283,19 @@ const initBJ = () => {
 
                     //add wager to moola
 
-                    //
                     askPlayAgain();
-
-                    // prompt to play another hand - include wager ?? see rules from link
+                    playAgainSwitch(); // double check this works - w/ default
+                    // - include wager ?? see rules from link
                     //      --> can't wager more than stash of moola
                 } else if (plyr1.handVal > 21) {
                     playing = false;
                     console.log(youLost());
                     // subtract wager from moola
 
-                    // reset hand
-                    plyr1.resetHand();
-                    dealer.resetHand();
-
                     // IF moola > 0, prompt to play another hand - include wager ?? see rules from link
                     if (plyr1.moola) {
                         askPlayAgain();
-                        let playAgainPrompt = ynPrompt();
-
-                        switch (playAgainPrompt) {
-                            case 'y':
-                                playHand();
-                                break;
-                            case 'n':
-                                anotherTimeMssg();
-                                break;
-                            default:
-                                invalidInput(); // finish this default
-                        }
+                        playAgainSwitch();
                     } else {
                         console.log(`
                             Seems you've no coin to wager, friend.`);
@@ -330,22 +330,7 @@ const initBJ = () => {
 
                             playing = false;
                             askPlayAgain();
-                            let handOrDone = ynPrompt();
-                            switch (handOrDone) {
-                                case 'y':
-                                    playHand();
-                                    break;
-                                case 'n':
-                                    anotherTimeMssg();
-                                    playing = false;
-                                    // reveal cards
-                                    // show score
-                                    // state who won
-                                    // move moola
-                                    break;
-                                default:
-                                    invalidInput(); // finish this default
-                            }
+                            playAgainSwitch(); // last change
                             break;
                         default:
                             invalidInput(); // finish this default
