@@ -178,10 +178,20 @@ const initBJ = () => {
             .trim()
             .toLowerCase();
 
-    console.log(`
+    const askPlayBJ = () =>
+        console.log(`
     Are you ready to play BJ?`);
-    let newTable = ynPrompt();
 
+    const invalidInput = () =>
+        console.error(`
+        WHOA! Might wanna slow down on the drinks, friend. Starting to slur your answers. Try answering again.`);
+
+    const anotherTimeMssg = () =>
+        console.log(`
+                    Perhaps another time.`);
+
+    askPlayBJ();
+    let newTable = ynPrompt();
     if (newTable === 'y') {
         // request player name ?? - indicate no special chars (add message apologizing for not currently allowing special chars) ?? - verify chars entered
         // request moola amt || set automatic moola amt
@@ -191,13 +201,6 @@ const initBJ = () => {
         /*
          * Gaming Fxns
          */
-        const invalidInput = () =>
-            console.error(`
-        WHOA! Might wanna slow down on the drinks, friend. Starting to slur your answers. Try answering again.`);
-
-        const anotherTimeMssg = () =>
-            console.log(`
-                            Perhaps another time.`);
 
         const askPlayAgain = () =>
             console.log(`
@@ -205,11 +208,11 @@ const initBJ = () => {
 
         const youWon = () =>
             `
-                            You won!`;
+                            You won!!!!!!!!!!!`;
 
         const youLost = () =>
             `
-                            You've lost this hand.`;
+                            You've lost this hand........`;
 
         const printHandsPreReveal = (player, dealer) =>
             console.log(`
@@ -221,9 +224,8 @@ const initBJ = () => {
                             The value of your hand is ${player.handVal}.
                             `);
 
-        const handsComp = (player, dealer) => {
-            return player.handVal > dealer.handVal ? youWon() : youLost();
-        }; // tie goes to house
+        const handsComp = (player, dealer) =>
+            player.handVal > dealer.handVal ? youWon() : youLost(); // tie goes to house -- check rules
 
         const playAgainSwitch = () => {
             let playAgainPrompt = ynPrompt();
@@ -248,13 +250,13 @@ const initBJ = () => {
             plyr.currentHand.push(new Card());
             dealer.currentHand.push(new Card());
             return;
-        }; // don't technically need to deal one card@time, but dont need to do this irl either. so, keepin it the same. if performance would suffer, could snatch last two cards in shuffled arr/"person" at once to improve
+        };
 
         /*
          * Instantiate Players
          */
-        const plyr1 = new Player(); // sub var for player name retrieved from prompt?
-        const dealer = new Dealer(); // maybe extend a Dealer class from Player class
+        const plyr1 = new Player(); // sub var for player name retrieved from prompt ??
+        const dealer = new Dealer();
 
         /*
          * Deal New Hand
@@ -278,7 +280,6 @@ const initBJ = () => {
                     playing = false;
                     console.log(youWon()); // unless tied ?? - see rules from link
                     // add rest of winning mssg
-                    // prompt to play another hand
                     // yes ? check if "enough" cards in deck to play another hand or if have to reshuffle
 
                     //add wager to moola
@@ -311,10 +312,6 @@ const initBJ = () => {
                         case 'n':
                             // add the dealer hitOrHold logic -- add logic to show loss as soon as over 21
 
-                            // reveal cards
-                            // show hands val
-                            // comp hands - state who won
-                            // use object ?? maybe not since need to access key -- // change if multiplayer
                             console.log(`
                             The dealer's cards are:
                             ${dealer.showHand()}
@@ -330,7 +327,7 @@ const initBJ = () => {
 
                             playing = false;
                             askPlayAgain();
-                            playAgainSwitch(); // last change
+                            playAgainSwitch();
                             break;
                         default:
                             invalidInput(); // finish this default
@@ -342,6 +339,11 @@ const initBJ = () => {
             return;
         };
         playHand();
+    } else if (newTable === 'n') {
+        anotherTimeMssg();
+    } else {
+        invalidInput();
+        initBJ();
     }
     return;
 };
