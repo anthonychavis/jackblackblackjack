@@ -129,7 +129,7 @@ class Hand {
 //
 class Moola {
     #moola = 10_000;
-    #numOfChips;
+    #numOfChips = 0;
     #chipsBet = 0;
     #quarterChips = 25;
 
@@ -310,6 +310,17 @@ const initBJ = () => {
                 ♣ ♠ ♦ ♥  BJ21  ♠ ♣ ♦ ♥`);
                     plyr1.chipsBet = '';
                     acceptedWagerMssg();
+                } else if (chips === 0) {
+                    // just for fun if someone checks  - easter egg
+                    invalidInput();
+                    console.error(`
+                ♥ ♦ ♣ ♠  BJ21  ♥ ♦ ♣ ♠
+                Not gonna happen, my friend.
+                We'll round it up to the minimum on this hand for you.
+                Free of charge.
+                ♥ ♦ ♣ ♠  BJ21  ♥ ♦ ♣ ♠`);
+                    plyr1.chipsBet = '';
+                    acceptedWagerMssg();
                 } else {
                     plyr1.chipsBet = '';
                     acceptedWagerMssg();
@@ -447,7 +458,7 @@ const initBJ = () => {
                     }
                 }
             }
-            console.log(plyr1.moola); // prints 2x; move ??issue w/ recursion
+            console.log(plyr1.moola); // prints 2x; move ??issue w/ recursion/loop
             return;
         };
         playHand();
@@ -498,12 +509,13 @@ console.log(shuffledDeck?.length); // optional chain b/c moved globals into init
  * use typescript
  * separate prompts into fxns ??
  *
- * based on "face up" value of player hand && dealer handVal relative to 21, dealer decides hitOrHold ??
- * --> have dealer be more conservative/aggro at random ??
+ * based on "face up" value of player hand && dealer handVal relative to 21, dealer decides hitOrHold ?? [no, stick to rules on site]
+ * --> have dealer be more conservative/aggro at random ?? [no, stick to rules on site]
+ *
  * "show" both face down cards when both player & dealer decide to hold
  * --> transfer moola accordingly
  * --> print winner, how they won, amt moola transferred, moola balance
  * --> prompt to play another hand if moola != 0
  *
- * remove recursion w/ while loop --
+ * remove recursion w/ while loop ??
  */
