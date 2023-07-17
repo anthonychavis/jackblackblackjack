@@ -1,10 +1,6 @@
 // create prompting fxn & allow users to exit the program
 const prompt = require('prompt-sync')({ sigint: true });
 
-// players need to bet money
-// track money transfer - win/loss amounts
-// implement rules for blackjack
-
 /*
  * GLOBAL VARS (for now)
  */
@@ -60,9 +56,6 @@ class Deck {
         13: 10,
     };
 
-    // constructor creates deck of cards, using card class ?? [nope]
-    // shuffle deck
-    // deal cards to players - from here ??
     constructor() {
         this.shuffle();
     }
@@ -106,6 +99,7 @@ class Deck {
 class Hand {
     // allCards = []; // what was this for ??
     currentHand = [];
+    // #handVal;
 
     constructor() {}
 
@@ -113,7 +107,7 @@ class Hand {
         return this.currentHand.map(card => card.revealCard()).join(' | ');
     }
 
-    handValFxn() {
+    #handValFxn() {
         return this.currentHand.reduce((sum, card) => (sum += card.value), 0);
     }
 
@@ -128,7 +122,7 @@ class Hand {
     }
 
     get handVal() {
-        return this.handValFxn();
+        return this.#handValFxn();
     }
 }
 
@@ -136,13 +130,13 @@ class Hand {
 class Moola {
     #moola = 10_000;
 
-    // play until some player loses all money
     constructor() {}
 
     get moola() {
         return this.#moola;
     }
 } // able to increase bet position before card reveal ?? - see site how2play
+// whole num bets only
 
 //
 class Player extends Hand {
@@ -206,13 +200,14 @@ const initBJ = () => {
             console.log(`
                         Would you like to play another hand?`);
 
-        const youWon = () =>
-            `
+        const youWon = () => `
                             You won!!!!!!!!!!!`;
 
-        const youLost = () =>
-            `
+        const youLost = () => `
                             You've lost this hand........`;
+
+        const tiedMssg = () => `
+                            Draw. Nothing lost; nothing gained.`;
 
         const printHandsPreReveal = (player, dealer) =>
             console.log(`
@@ -225,7 +220,11 @@ const initBJ = () => {
                             `);
 
         const handsComp = (player, dealer) =>
-            player.handVal > dealer.handVal ? youWon() : youLost(); // tie goes to house -- check rules
+            player.handVal > dealer.handVal
+                ? youWon()
+                : player.handVal < dealer.handVal
+                ? youLost()
+                : tiedMssg(); // tie = wager returned
 
         const playAgainSwitch = () => {
             let playAgainPrompt = ynPrompt();
@@ -267,6 +266,10 @@ const initBJ = () => {
                 dealer.resetHand();
             }
 
+            // wager before dealing
+            // table minimum
+            // tie = wager returned
+
             dealCards(plyr1, dealer);
 
             /*
@@ -278,7 +281,7 @@ const initBJ = () => {
 
                 if (plyr1.handVal == 21) {
                     playing = false;
-                    console.log(youWon()); // unless tied ?? - see rules from link
+                    console.log(youWon()); // unless tied - CHANGE TO CHECK DEALER'S HAND FIRST; ALLOW DEALER LOGIC
                     // add rest of winning mssg
                     // yes ? check if "enough" cards in deck to play another hand or if have to reshuffle
 
@@ -310,7 +313,7 @@ const initBJ = () => {
                             plyr1.addCard();
                             break;
                         case 'n':
-                            // add the dealer hitOrHold logic -- add logic to show loss as soon as over 21
+                            // add the dealer hitOrHold logic -- add logic to show loss as soon as over 21 -- see below
 
                             console.log(`
                             The dealer's cards are:
@@ -330,7 +333,7 @@ const initBJ = () => {
                             playAgainSwitch();
                             break;
                         default:
-                            invalidInput(); // finish this default
+                            invalidInput();
                     }
                 }
             }
@@ -353,27 +356,29 @@ initBJ();
 console.log(shuffledDeck?.length); // optional chain b/c moved globals into initBJ
 
 /**
+ * dealer to stand if >16
+ *
+ * reread about #decks
+ *
+ * incorporate split for 2ofKind hand
+ * --> 2 plyr hands
+ * --> wager/hand
+ * --> prompt option for split when 2ofKind
+ *
  * for Ace, use typeof?? & calculate handVal - if max less than 21, apply max, otherwise apply min
  *  if bulding rules,
  * --> explain shown cards format
  *      --> what S, C, H, & D are in printed cards
  *      --> explain why the 1st dealer card is face down
- * player - CLASS ?? [probably]
- * methods of Hand CLASS for showFullHand (always for player & only at end of round for dealer) & initDealerHandShow (for when one card is face down) ??
  * REMEMBER to make fields/methods private (maybe)
  * use modules
  * use typescript
  * separate prompts into fxns ??
- * use while loop instead of nested conditionals ??
- *make sure the shuffledDeck decreases each hand
  *
  * based on "face up" value of player hand && dealer handVal relative to 21, dealer decides hitOrHold ??
  * --> have dealer be more conservative/aggro at random ??
  * "show" both face down cards when both player & dealer decide to hold
- * --> determine winner
  * --> transfer moola accordingly
  * --> print winner, how they won, amt moola transferred, moola balance
  * --> prompt to play another hand if moola != 0
- *
- * fix extra prompt/key !! [FIXED]
  */
