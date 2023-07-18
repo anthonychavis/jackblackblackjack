@@ -102,42 +102,43 @@ class Hand {
 
     constructor() {}
 
-    showHand() {
-        return this.currentHand.map(card => card.revealCard()).join(' | ');
+    addCard() {
+        this.currentHand.push(new Card());
+        return;
+    }
+
+    #aceInHandCalc(index = 0) {
+        return this.currentHand.reduce((sum, card) => {
+            let cardVal;
+            if (isNaN(card.value)) {
+                cardVal = card.value[index];
+            } else {
+                cardVal = card.value;
+            }
+            return (sum += cardVal);
+        }, 0);
     }
 
     #handValFxn() {
         const checkForAce = this.currentHand.some(card => isNaN(card.value));
         if (checkForAce) {
-            const aceInHandCalc = (index = 0) => {
-                return this.currentHand.reduce((sum, card) => {
-                    let cardVal;
-                    if (isNaN(card.value)) {
-                        cardVal = card.value[index];
-                    } else {
-                        cardVal = card.value;
-                    }
-                    return (sum += cardVal);
-                }, 0);
-            };
-            let highAce = aceInHandCalc(1);
-            return highAce <= 21 ? highAce : aceInHandCalc();
+            const highAce = this.#aceInHandCalc(1);
+            return highAce <= 21 ? highAce : this.#aceInHandCalc();
         } else {
             return this.currentHand.reduce(
                 (sum, card) => (sum += card.value),
                 0
             );
         }
-    }
-
-    addCard() {
-        this.currentHand.push(new Card());
-        return;
-    }
+    } // fix for multiple aces in hand !??!
 
     resetHand() {
         this.currentHand = [];
         return;
+    }
+
+    showHand() {
+        return this.currentHand.map(card => card.revealCard()).join(' | ');
     }
 
     get handVal() {
