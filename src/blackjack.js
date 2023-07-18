@@ -12,8 +12,6 @@ let shuffledDeck;
  */
 //
 class Card {
-    // constructor to accept card suit and value -- ?? why? ->b/c instantiate in Deck??
-
     #topCard;
     #value;
 
@@ -163,7 +161,7 @@ class Moola {
     }
 
     #chipsToCash(numChips) {
-        this.#moola = this.#numOfChips * this.#quarterChips; // if only using "quarters"
+        this.#moola = numChips * this.#quarterChips; // if only using "quarters"
         return;
     } // numChips if using this method of placing bet
 
@@ -171,13 +169,13 @@ class Moola {
         this.#numOfChips -= bet;
         this.#chipsToCash(this.#numOfChips);
         return;
-    } // confirm fxnality !!
+    }
 
     _winHand(bet) {
         this.#numOfChips += bet;
         this.#chipsToCash(this.#numOfChips);
         return;
-    } // confirm fxnality !!
+    }
 
     get moola() {
         return this.#moola;
@@ -200,7 +198,6 @@ class Moola {
     //     this.#moola = cash;
     // } // if allowing player to set amt ??
 }
-// use 2 as default value passed in (if only doing bets of $25 chips -- also explain this at file launch)
 
 //
 class Player extends Hand {
