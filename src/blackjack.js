@@ -90,7 +90,6 @@ class Deck {
                 shuffledDeck[i],
             ];
         }
-
         return;
     }
 }
@@ -130,7 +129,7 @@ class Hand {
 class Moola {
     #moola = 10_000;
     #numOfChips = 0;
-    #chipsBet = 0;
+    #chipsBet;
     #quarterChips = 25;
 
     constructor() {
@@ -147,14 +146,14 @@ class Moola {
         return;
     } // numChips if using this method of placing bet
 
-    _winHand(bet) {
-        this.#numOfChips += bet;
+    _lossHand(bet) {
+        this.#numOfChips -= bet;
         this.#chipsToCash(this.#numOfChips);
         return;
     } // confirm fxnality !!
 
-    _lossHand(bet) {
-        this.#numOfChips -= bet;
+    _winHand(bet) {
+        this.#numOfChips += bet;
         this.#chipsToCash(this.#numOfChips);
         return;
     } // confirm fxnality !!
@@ -167,7 +166,11 @@ class Moola {
         return this.#numOfChips;
     }
 
-    set chipsBet(numChips = 2) {
+    get chipsBet() {
+        return this.#chipsBet;
+    }
+
+    set chipsBet(numChips) {
         this.#chipsBet = numChips;
         return;
     }
@@ -186,12 +189,29 @@ class Player extends Hand {
         super();
     }
 
-    get moola() {
-        return this.#plyrMoola.moola;
+    _lossHand(bet) {
+        return this.#plyrMoola._lossHand(bet);
+    }
+
+    _winHand(bet) {
+        return this.#plyrMoola._winHand(bet);
     }
 
     get chips() {
         return this.#plyrMoola.chips;
+    }
+
+    get chipsBet() {
+        return this.#plyrMoola.chipsBet;
+    }
+
+    get moola() {
+        return this.#plyrMoola.moola;
+    }
+
+    set chipsBet(numChips) {
+        this.#plyrMoola.chipsBet = numChips;
+        return;
     }
 
     // set moola(cash) {
@@ -231,6 +251,7 @@ const initBJ = () => {
 
     const invalidInput = () =>
         console.error(`
+
         WHOA! Might wanna slow down on the drinks, friend. Starting to slur your answers. Try answering again.`);
 
     const anotherTimeMssg = () =>
@@ -240,9 +261,6 @@ const initBJ = () => {
     askPlayBJ();
     let newTable = ynPrompt();
     if (newTable === 'y') {
-        // request player name ?? - indicate no special chars (add message apologizing for not currently allowing special chars) ?? - verify chars entered
-        // request moola amt || set automatic moola amt
-
         const deck1 = new Deck();
 
         /*
@@ -276,30 +294,34 @@ const initBJ = () => {
         const tiedMssg = () => `
                             Draw. Nothing lost; nothing gained.`; // aka push
 
-        const youLost = () => `
+        const youLostMssg = () => `
                             You've lost this hand........`;
 
-        const youWon = () => `
+        const youWonMssg = () => `
                             You won!!!!!!!!!!!`;
 
         /*
          * Prompt Fxns
          */
         const chipsPromptFxn = () => {
-            let chips = +prompt(`
-                    number of chips >> `);
-            if (chips % 1 === 0) {
-                if (chips < plyr1.chips && chips > 1) {
-                    plyr1.chipsBet = chips;
+            let chips = prompt(`
+                    number of chips >> `).trim();
+            if (+chips % 1 === 0) {
+                if (+chips < plyr1.chips && +chips > 1) {
+                    plyr1.chipsBet = +chips;
+                    testPlyrChips = plyr1.chipsBet;
                     acceptedWagerMssg(chips);
-                } else if (chips > plyr1.chips) {
+                } else if (+chips > plyr1.chips) {
                     invalidInput();
                     console.error(`
                     You know you can't bet more than you have at this table.
                     Take your time.`);
                     askWager();
                     chipsPromptFxn();
-                } else if (chips === 1) {
+                } else if (chips === '') {
+                    plyr1.chipsBet = 2;
+                    acceptedWagerMssg();
+                } else if (+chips === 1) {
                     // just for fun if someone checks  - easter egg
                     invalidInput();
                     console.error(`
@@ -308,9 +330,9 @@ const initBJ = () => {
                 We'll round it up to the minimum on this hand for you.
                 Free of charge.
                 ♣ ♠ ♦ ♥  BJ21  ♠ ♣ ♦ ♥`);
-                    plyr1.chipsBet = '';
+                    plyr1.chipsBet = 2;
                     acceptedWagerMssg();
-                } else if (chips === 0) {
+                } else if (+chips === 0) {
                     // just for fun if someone checks  - easter egg
                     invalidInput();
                     console.error(`
@@ -319,11 +341,15 @@ const initBJ = () => {
                 We'll round it up to the minimum on this hand for you.
                 Free of charge.
                 ♥ ♦ ♣ ♠  BJ21  ♥ ♦ ♣ ♠`);
-                    plyr1.chipsBet = '';
+                    plyr1.chipsBet = 2;
                     acceptedWagerMssg();
                 } else {
-                    plyr1.chipsBet = '';
-                    acceptedWagerMssg();
+                    console.error(`
+                    Enter the numerical value of the amount of chips you'd like to wager,
+                    or leave it blank & press the Enter key to wager the table minimum.
+                    Negative values are definitely not an option.`);
+                    askWager();
+                    chipsPromptFxn();
                 }
             } else {
                 invalidInput();
@@ -362,12 +388,24 @@ const initBJ = () => {
             return;
         };
 
-        const handsComp = (player, dealer) =>
-            player.handVal > dealer.handVal
-                ? youWon()
-                : player.handVal < dealer.handVal
-                ? youLost()
-                : tiedMssg(); // tie/push = wager returned
+        /**
+         *
+         * @param {*} player - string; player name
+         * @param {*} dealer - string; dealer name
+         * @param {*} bet - number; pulled from player class
+         * @returns string; hand results mssg
+         */
+        const handsComp = (player, dealer, bet) => {
+            if (player.handVal > dealer.handVal) {
+                player._winHand(bet);
+                return youWonMssg();
+            } else if (player.handVal < dealer.handVal) {
+                player._lossHand(bet);
+                return youLostMssg();
+            } else {
+                return tiedMssg(); // tie/push = wager returned
+            }
+        };
 
         /*
          * Instantiate Players
@@ -399,23 +437,11 @@ const initBJ = () => {
             while (playing) {
                 printHandsPreReveal(plyr1, dealer);
 
-                if (plyr1.handVal == 21) {
+                if (plyr1.handVal > 21) {
                     playing = false;
-                    console.log(youWon()); // unless tied/push - CHANGE TO CHECK DEALER'S HAND FIRST; ALLOW DEALER LOGIC
-                    // add rest of winning mssg
-                    // yes ? check if "enough" cards in deck to play another hand or if have to reshuffle
-                    // swap out of this for more plyr autonomy ??
-
-                    //add wager to moola
-
-                    askPlayAgain();
-                    playAgainSwitch(); // double check this works - w/ default
-                    // - include wager ?? see rules from link
-                    //      --> can't wager more than stash of moola
-                } else if (plyr1.handVal > 21) {
-                    playing = false;
-                    console.log(youLost());
+                    console.log(youLostMssg());
                     // subtract wager from moola
+                    plyr1._lossHand(plyr1.chipsBet);
 
                     // IF moola > 0, prompt to play another hand - include wager ?? see rules from link
                     if (plyr1.moola) {
@@ -425,6 +451,18 @@ const initBJ = () => {
                         console.log(`
                             Seems you've no coin to wager, friend.`);
                     }
+                } else if (plyr1.handVal == 21) {
+                    playing = false;
+                    console.log(youWonMssg()); // unless tied/push - CHANGE TO CHECK DEALER'S HAND FIRST; ALLOW DEALER LOGIC
+                    // add rest of winning mssg
+                    // swap out of this for more plyr autonomy ??
+
+                    //add wager to moola
+                    plyr1._winHand(plyr1.chipsBet);
+
+                    askPlayAgain();
+                    playAgainSwitch(); // double check this works - w/ default
+                    // yes ? check if "enough" cards in deck to play another hand or if have to reshuffle
                 } else {
                     console.log(`
                             Would you like another card?`);
@@ -445,9 +483,7 @@ const initBJ = () => {
                             ${plyr1.showHand()}
                             The value of your hand is ${plyr1.handVal}.
                             
-                            ${handsComp(plyr1, dealer)}`);
-
-                            // move moola
+                            ${handsComp(plyr1, dealer, plyr1.chipsBet)}`);
 
                             playing = false;
                             askPlayAgain();
@@ -458,7 +494,6 @@ const initBJ = () => {
                     }
                 }
             }
-            console.log(plyr1.moola); // prints 2x; move ??issue w/ recursion/loop
             return;
         };
         playHand();
@@ -518,4 +553,13 @@ console.log(shuffledDeck?.length); // optional chain b/c moved globals into init
  * --> prompt to play another hand if moola != 0
  *
  * remove recursion w/ while loop ??
+ *
+ * look into cleaning up  moola transfers
+ *
+ * print moola after win/loss !!
+ *
+ * add fxn documentation
+ * --> look into the standard
  */
+// request player name ?? - indicate no special chars (add message apologizing for not currently allowing special chars) ?? - verify chars entered
+// request moola amt || set automatic moola amt
