@@ -397,6 +397,22 @@ const initBJ = () => {
         };
 
         /**
+         * checks if the player has moola; if so, asks if player wants to play another round [askPlayAgain()] & provides the prompt [playAgainSwitch()]; if not, informs player there is no moola left
+         * @returns void
+         */
+        const checkMoolaToPlay = () => {
+            if (plyr1.moola) {
+                askPlayAgain();
+                playAgainSwitch();
+                // yes ? check if "enough" cards in deck to play another hand or if have to reshuffle
+            } else {
+                console.log(`
+                    Seems you've no coin to wager, friend.`);
+            }
+            return;
+        };
+
+        /**
          * deal cards alternating between player & dealer
          * @param {*} plyr - string; the player
          * @param {*} dealer - string; the dealer
@@ -465,15 +481,9 @@ const initBJ = () => {
                     // subtract wager from moola
                     plyr1._lossHand(plyr1.chipsBet);
 
-                    // IF moola > 0, prompt to play another hand - include wager ??
-                    if (plyr1.moola) {
-                        askPlayAgain();
-                        playAgainSwitch();
-                        // yes ? check if "enough" cards in deck to play another hand or if have to reshuffle
-                    } else {
-                        console.log(`
-                            Seems you've no coin to wager, friend.`);
-                    }
+                    // show moola
+
+                    checkMoolaToPlay();
                 } else if (plyr1.handVal == 21) {
                     playing = false;
                     console.log(youWonMssg()); // unless tied/push - CHANGE TO CHECK DEALER'S HAND FIRST; ALLOW DEALER LOGIC
@@ -508,16 +518,10 @@ const initBJ = () => {
                             
                             ${handsComp(plyr1, dealer, plyr1.chipsBet)}`);
 
-                            playing = false;
+                            // show moola
 
-                            if (plyr1.moola) {
-                                askPlayAgain();
-                                playAgainSwitch();
-                                // yes ? check if "enough" cards in deck to play another hand or if have to reshuffle
-                            } else {
-                                console.log(`
-                                    Seems you've no coin to wager, friend.`);
-                            }
+                            playing = false;
+                            checkMoolaToPlay();
                             break;
                         default:
                             invalidInput();
