@@ -107,7 +107,27 @@ class Hand {
     }
 
     #handValFxn() {
-        return this.currentHand.reduce((sum, card) => (sum += card.value), 0);
+        const checkForAce = this.currentHand.some(card => isNaN(card.value));
+        if (checkForAce) {
+            const aceInHandCalc = (index = 0) => {
+                return this.currentHand.reduce((sum, card) => {
+                    let cardVal;
+                    if (isNaN(card.value)) {
+                        cardVal = card.value[index];
+                    } else {
+                        cardVal = card.value;
+                    }
+                    return (sum += cardVal);
+                }, 0);
+            };
+            let highAce = aceInHandCalc(1);
+            return highAce <= 21 ? highAce : aceInHandCalc();
+        } else {
+            return this.currentHand.reduce(
+                (sum, card) => (sum += card.value),
+                0
+            );
+        }
     }
 
     addCard() {
@@ -380,6 +400,12 @@ const initBJ = () => {
             return;
         };
 
+        /**
+         * deal cards alternating between player & dealer
+         * @param {*} plyr - string; the player
+         * @param {*} dealer - string; the dealer
+         * @returns void
+         */
         const dealCards = (plyr, dealer) => {
             plyr.currentHand.push(new Card());
             dealer.currentHand.push(new Card());
@@ -389,7 +415,7 @@ const initBJ = () => {
         };
 
         /**
-         *
+         * compares player's hand with dealer's hand; moves moolah based on result of the comparison; tells player the result
          * @param {*} player - string; player name
          * @param {*} dealer - string; dealer name
          * @param {*} bet - number; pulled from player class
