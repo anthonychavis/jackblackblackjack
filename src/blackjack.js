@@ -467,10 +467,11 @@ const initBJ = () => {
                     // subtract wager from moola
                     plyr1._lossHand(plyr1.chipsBet);
 
-                    // IF moola > 0, prompt to play another hand - include wager ?? see rules from link
+                    // IF moola > 0, prompt to play another hand - include wager ??
                     if (plyr1.moola) {
                         askPlayAgain();
                         playAgainSwitch();
+                        // yes ? check if "enough" cards in deck to play another hand or if have to reshuffle
                     } else {
                         console.log(`
                             Seems you've no coin to wager, friend.`);
@@ -510,8 +511,15 @@ const initBJ = () => {
                             ${handsComp(plyr1, dealer, plyr1.chipsBet)}`);
 
                             playing = false;
-                            askPlayAgain();
-                            playAgainSwitch();
+
+                            if (plyr1.moola) {
+                                askPlayAgain();
+                                playAgainSwitch();
+                                // yes ? check if "enough" cards in deck to play another hand or if have to reshuffle
+                            } else {
+                                console.log(`
+                                    Seems you've no coin to wager, friend.`);
+                            }
                             break;
                         default:
                             invalidInput();
@@ -586,6 +594,8 @@ console.log(shuffledDeck?.length); // optional chain b/c moved globals into init
  * --> look into the standard
  *
  * increase table minimum bet ??
+ *
+ * check if enough cards in shuffledDeck to play another rd
  *
  */
 // request player name ?? - indicate no special chars (add message apologizing for not currently allowing special chars) ?? - verify chars entered
