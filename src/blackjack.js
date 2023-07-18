@@ -307,7 +307,7 @@ const initBJ = () => {
             let chips = prompt(`
                     number of chips >> `).trim();
             if (+chips % 1 === 0) {
-                if (+chips < plyr1.chips && +chips > 1) {
+                if (+chips <= plyr1.chips && +chips > 1) {
                     plyr1.chipsBet = +chips;
                     testPlyrChips = plyr1.chipsBet;
                     acceptedWagerMssg(chips);
@@ -560,6 +560,9 @@ console.log(shuffledDeck?.length); // optional chain b/c moved globals into init
  *
  * add fxn documentation
  * --> look into the standard
+ *
+ * increase table minimum bet ??
+ *
  */
 // request player name ?? - indicate no special chars (add message apologizing for not currently allowing special chars) ?? - verify chars entered
 // request moola amt || set automatic moola amt
