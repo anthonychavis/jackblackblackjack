@@ -108,11 +108,9 @@ class Hand {
     #aceInHandCalc(index = 0) {
         return this.currentHand.reduce((sum, card) => {
             let cardVal;
-            if (isNaN(card.value)) {
-                cardVal = card.value[index];
-            } else {
-                cardVal = card.value;
-            }
+            isNaN(card.value)
+                ? (cardVal = card.value[index])
+                : (cardVal = card.value);
             return (sum += cardVal);
         }, 0);
     }
