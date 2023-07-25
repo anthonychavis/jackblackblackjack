@@ -314,10 +314,10 @@ const initBJ = () => {
      * checks if the player has moola; if so, asks if player wants to play another round [askPlayAgain()] & provides the prompt [playAgainSwitch()]; if not, informs player there is no moola left
      * @returns void
      */
-    const checkMoolaToPlay = plyr => {
+    const checkMoolaToPlay = (plyr, dealer) => {
         if (plyr.moola) {
             askPlayAgain();
-            playAgainSwitch();
+            playAgainSwitch(plyr, dealer);
             // yes ? check if "enough" cards in deck to play another hand or if have to reshuffle
         } else {
             console.log(`
@@ -418,12 +418,12 @@ const initBJ = () => {
         }
     };
 
-    const playAgainSwitch = () => {
+    const playAgainSwitch = (plyr, dealer) => {
         let playAgainPrompt = ynPrompt();
 
         switch (playAgainPrompt) {
             case 'y':
-                playHand();
+                playHand(plyr, dealer);
                 break;
             case 'n':
                 anotherTimeMssg();
@@ -437,10 +437,10 @@ const initBJ = () => {
     };
 
     const playHand = (plyr, dealer) => {
-        if (dealer.handVal) {
-            plyr.resetHand();
-            dealer.resetHand();
-        }
+        // if (dealer.handVal) {
+        plyr.resetHand();
+        dealer.resetHand();
+        // }
 
         askWager(plyr);
         chipsPromptFxn(plyr);
@@ -503,7 +503,7 @@ const initBJ = () => {
                         // show moola
 
                         playing = false;
-                        checkMoolaToPlay(plyr);
+                        checkMoolaToPlay(plyr, dealer);
                         break;
                     default:
                         invalidInput();
@@ -526,18 +526,15 @@ const initBJ = () => {
     let newTable = ynPrompt();
     if (newTable === 'y') {
         const deck1 = new Deck();
-
         /*
          * Instantiate Players
          */
         const plyr1 = new Player(); // sub var for player name retrieved from prompt ??
-        const dealer = new Dealer();
-
+        const theDealer = new Dealer();
         /*
          * Deal New Hand
          */
-        playHand(plyr1, dealer);
-        // fix handVal error
+        playHand(plyr1, theDealer);
     } else if (newTable === 'n') {
         anotherTimeMssg();
     } else {
@@ -546,7 +543,6 @@ const initBJ = () => {
     }
     return;
 };
-
 initBJ();
 
 console.log(shuffledDeck?.length); // optional chain b/c moved globals into initBJ
