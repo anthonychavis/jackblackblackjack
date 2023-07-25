@@ -437,10 +437,10 @@ const initBJ = () => {
     };
 
     const playHand = (plyr, dealer) => {
-        // if (dealer.handVal) {
-        plyr.resetHand();
-        dealer.resetHand();
-        // }
+        if (dealer.handVal) {
+            plyr.resetHand();
+            dealer.resetHand();
+        }
 
         askWager(plyr);
         chipsPromptFxn(plyr);
