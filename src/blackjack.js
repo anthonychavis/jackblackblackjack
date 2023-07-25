@@ -333,7 +333,7 @@ const initBJ = () => {
             if (+chips <= plyr.chips && +chips > 1) {
                 plyr.chipsBet = +chips;
                 testPlyrChips = plyr.chipsBet;
-                acceptedWagerMssg(plyr1, chips);
+                acceptedWagerMssg(plyr, chips);
             } else if (+chips > plyr.chips) {
                 invalidInput();
                 console.error(`
