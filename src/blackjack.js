@@ -252,200 +252,280 @@ class Dealer extends Hand {
 
 //
 const initBJ = () => {
-    const ynPrompt = () =>
-        prompt(`
-                (y/n) >> `)
-            .trim()
-            .toLowerCase();
+    /*
+     * Message Fxns
+     */
+    const acceptedWagerMssg = (plyr, chips = 2) =>
+        console.log(`
+                You have wagered ${chips} of your ${plyr.chips} chips.`);
 
     const askPlayBJ = () =>
         console.log(`
-        
+    
         ♣ ♠ ♦ ♥  BJ21  ♠ ♣ ♦ ♥
         Hello, friend. There is a $50 minimum wager per round at this table.
         When you're ready, I'll take your cash [starting with $10000] and
         provide you with the equivalent as $25 chips.
         Are you ready to play BJ21?`);
 
-    const invalidInput = () =>
-        console.error(`
-
-        WHOA! Might wanna slow down on the drinks, friend. Starting to slur your answers. Try answering again.`);
-
     const anotherTimeMssg = () =>
         console.log(`
                     Perhaps another time.`);
 
+    const askPlayAgain = () =>
+        console.log(`
+                    Would you like to play another hand?`);
+
+    const askWager = plyr =>
+        console.log(`
+                    You have ${plyr.chips} $25 chips with a value of $${plyr.moola}.
+                    How many chips would you like to wager? (numerical value only)
+                    [Note: You may proceed without entering a value to
+                    automatically wager the table minimum ($50)].`);
+
+    const invalidInput = () =>
+        console.error(`
+            
+        WHOA! Might wanna slow down on the drinks, friend. Starting to slur your answers. Try answering again.`);
+
+    const printHandsPreReveal = (player, dealer) =>
+        console.log(`
+                            The dealer's cards are:
+                            ${dealer.privateHand()}
+    
+                            Your cards are:
+                            ${player.showHand()}
+                            The value of your hand is ${player.handVal}.
+                                `);
+
+    const tiedMssg = () => `
+                        Draw. Nothing lost; nothing gained.`; // aka push
+
+    const youLostMssg = () => `
+                        You've lost this hand........`;
+
+    const youWonMssg = () => `
+                        You won!!!!!!!!!!!`;
+
+    /*
+     * Prompt Fxns
+     */
+    /**
+     * checks if the player has moola; if so, asks if player wants to play another round [askPlayAgain()] & provides the prompt [playAgainSwitch()]; if not, informs player there is no moola left
+     * @returns void
+     */
+    const checkMoolaToPlay = plyr => {
+        if (plyr.moola) {
+            askPlayAgain();
+            playAgainSwitch();
+            // yes ? check if "enough" cards in deck to play another hand or if have to reshuffle
+        } else {
+            console.log(`
+                Seems you've no coin to wager, friend.`);
+        }
+        return;
+    };
+
+    const chipsPromptFxn = plyr => {
+        let chips = prompt(`
+                number of chips >> `).trim();
+        if (+chips % 1 === 0) {
+            if (+chips <= plyr.chips && +chips > 1) {
+                plyr.chipsBet = +chips;
+                testPlyrChips = plyr.chipsBet;
+                acceptedWagerMssg(plyr1, chips);
+            } else if (+chips > plyr.chips) {
+                invalidInput();
+                console.error(`
+                You know you can't bet more than you have at this table.
+                Take your time.`);
+                askWager(plyr);
+                chipsPromptFxn(plyr);
+            } else if (chips === '') {
+                plyr.chipsBet = 2;
+                acceptedWagerMssg(plyr);
+            } else if (+chips === 1) {
+                // just for fun if someone checks  - easter egg
+                invalidInput();
+                console.error(`
+            ♣ ♠ ♦ ♥  BJ21  ♠ ♣ ♦ ♥
+            That's below the table minimum, pal.
+            We'll round it up to the minimum on this hand for you.
+            Free of charge.
+            ♣ ♠ ♦ ♥  BJ21  ♠ ♣ ♦ ♥`);
+                plyr.chipsBet = 2;
+                acceptedWagerMssg(plyr);
+            } else if (+chips === 0) {
+                // just for fun if someone checks  - easter egg
+                invalidInput();
+                console.error(`
+            ♥ ♦ ♣ ♠  BJ21  ♥ ♦ ♣ ♠
+            Not gonna happen, my friend.
+            We'll round it up to the minimum on this hand for you.
+            Free of charge.
+            ♥ ♦ ♣ ♠  BJ21  ♥ ♦ ♣ ♠`);
+                plyr.chipsBet = 2;
+                acceptedWagerMssg(plyr);
+            } else {
+                console.error(`
+                Enter the numerical value of the amount of chips you'd like to wager,
+                or leave it blank & press the Enter key to wager the table minimum.
+                Negative values are definitely not an option.`);
+                askWager(plyr);
+                chipsPromptFxn(plyr);
+            }
+        } else {
+            invalidInput();
+            console.error(`
+                Enter the numerical value of the amount of chips you'd like to wager,
+                or leave it blank & press the Enter key to wager the table minimum.`);
+            askWager(plyr);
+            chipsPromptFxn(plyr);
+        }
+        return;
+    };
+
+    /**
+     * deal cards alternating between player & dealer
+     * @param {*} plyr - string; the player
+     * @param {*} dealer - string; the dealer
+     * @returns void
+     */
+    const dealCards = (plyr, dealer) => {
+        plyr.currentHand.push(new Card());
+        dealer.currentHand.push(new Card());
+        plyr.currentHand.push(new Card());
+        dealer.currentHand.push(new Card());
+        return;
+    };
+
+    /**
+     * compares player's hand with dealer's hand; moves moolah based on result of the comparison; tells player the result
+     * @param {*} player - string; player name
+     * @param {*} dealer - string; dealer name
+     * @param {*} bet - number; pulled from player class
+     * @returns string; hand results mssg
+     */
+    const handsComp = (player, dealer, bet) => {
+        if (player.handVal > dealer.handVal) {
+            player._winHand(bet);
+            return youWonMssg();
+        } else if (player.handVal < dealer.handVal) {
+            player._lossHand(bet);
+            return youLostMssg();
+        } else {
+            return tiedMssg(); // tie/push = wager returned
+        }
+    };
+
+    const playAgainSwitch = () => {
+        let playAgainPrompt = ynPrompt();
+
+        switch (playAgainPrompt) {
+            case 'y':
+                playHand();
+                break;
+            case 'n':
+                anotherTimeMssg();
+                break;
+            default:
+                invalidInput();
+                askPlayAgain();
+                playAgainSwitch();
+        }
+        return;
+    };
+
+    const playHand = (plyr, dealer) => {
+        if (dealer.handVal) {
+            plyr.resetHand();
+            dealer.resetHand();
+        }
+
+        askWager(plyr);
+        chipsPromptFxn(plyr);
+
+        // show number of chips bet w/ their value & number of chips left in stash w/ their value
+        // tie/push = wager returned
+
+        dealCards(plyr, dealer);
+
+        /*
+         * Playing While Loop
+         */
+        let playing = true;
+        while (playing) {
+            printHandsPreReveal(plyr, dealer);
+
+            if (plyr.handVal > 21) {
+                playing = false;
+                console.log(youLostMssg());
+                // subtract wager from moola
+                plyr._lossHand(plyr.chipsBet);
+
+                // show moola
+
+                checkMoolaToPlay(plyr);
+            } else if (plyr.handVal == 21) {
+                playing = false;
+                console.log(youWonMssg()); // unless tied/push - CHANGE TO CHECK DEALER'S HAND FIRST; ALLOW DEALER LOGIC
+                // add rest of winning mssg
+                // swap out of this for more plyr autonomy ??
+
+                //add wager to moola
+                plyr._winHand(plyr.chipsBet);
+
+                askPlayAgain();
+                playAgainSwitch(); // double check this works - w/ default
+                // yes ? check if "enough" cards in deck to play another hand or if have to reshuffle
+            } else {
+                console.log(`
+                        Would you like another card?`);
+                let hitOrHold = ynPrompt();
+                switch (hitOrHold) {
+                    case 'y':
+                        plyr.addCard();
+                        break;
+                    case 'n':
+                        // add the dealer hitOrHold logic -- add logic to show loss as soon as over 21 -- see below
+
+                        console.log(`
+                        The dealer's cards are:
+                        ${dealer.showHand()}
+                        The value of the dealer's hand is ${dealer.handVal}.
+
+                        Your cards are:
+                        ${plyr.showHand()}
+                        The value of your hand is ${plyr.handVal}.
+                        
+                        ${handsComp(plyr, dealer, plyr.chipsBet)}`);
+
+                        // show moola
+
+                        playing = false;
+                        checkMoolaToPlay(plyr);
+                        break;
+                    default:
+                        invalidInput();
+                }
+            }
+        }
+        return;
+    };
+
+    const ynPrompt = () =>
+        prompt(`
+                (y/n) >> `)
+            .trim()
+            .toLowerCase();
+
+    /*
+     * Game Flow
+     */
     askPlayBJ();
     let newTable = ynPrompt();
     if (newTable === 'y') {
         const deck1 = new Deck();
-
-        /*
-         * Message Fxns
-         */
-        const acceptedWagerMssg = (chips = 2) =>
-            console.log(`
-                    You have wagered ${chips} of your ${plyr1.chips} chips.`);
-
-        const askPlayAgain = () =>
-            console.log(`
-                        Would you like to play another hand?`);
-
-        const askWager = () =>
-            console.log(`
-                        You have ${plyr1.chips} $25 chips with a value of $${plyr1.moola}.
-                        How many chips would you like to wager? (numerical value only)
-                        [Note: You may proceed without entering a value to
-                        automatically wager the table minimum ($50)].`);
-
-        const printHandsPreReveal = (player, dealer) =>
-            console.log(`
-                                The dealer's cards are:
-                                ${dealer.privateHand()}
-        
-                                Your cards are:
-                                ${player.showHand()}
-                                The value of your hand is ${player.handVal}.
-                                    `);
-
-        const tiedMssg = () => `
-                            Draw. Nothing lost; nothing gained.`; // aka push
-
-        const youLostMssg = () => `
-                            You've lost this hand........`;
-
-        const youWonMssg = () => `
-                            You won!!!!!!!!!!!`;
-
-        /*
-         * Prompt Fxns
-         */
-        const chipsPromptFxn = () => {
-            let chips = prompt(`
-                    number of chips >> `).trim();
-            if (+chips % 1 === 0) {
-                if (+chips <= plyr1.chips && +chips > 1) {
-                    plyr1.chipsBet = +chips;
-                    testPlyrChips = plyr1.chipsBet;
-                    acceptedWagerMssg(chips);
-                } else if (+chips > plyr1.chips) {
-                    invalidInput();
-                    console.error(`
-                    You know you can't bet more than you have at this table.
-                    Take your time.`);
-                    askWager();
-                    chipsPromptFxn();
-                } else if (chips === '') {
-                    plyr1.chipsBet = 2;
-                    acceptedWagerMssg();
-                } else if (+chips === 1) {
-                    // just for fun if someone checks  - easter egg
-                    invalidInput();
-                    console.error(`
-                ♣ ♠ ♦ ♥  BJ21  ♠ ♣ ♦ ♥
-                That's below the table minimum, pal.
-                We'll round it up to the minimum on this hand for you.
-                Free of charge.
-                ♣ ♠ ♦ ♥  BJ21  ♠ ♣ ♦ ♥`);
-                    plyr1.chipsBet = 2;
-                    acceptedWagerMssg();
-                } else if (+chips === 0) {
-                    // just for fun if someone checks  - easter egg
-                    invalidInput();
-                    console.error(`
-                ♥ ♦ ♣ ♠  BJ21  ♥ ♦ ♣ ♠
-                Not gonna happen, my friend.
-                We'll round it up to the minimum on this hand for you.
-                Free of charge.
-                ♥ ♦ ♣ ♠  BJ21  ♥ ♦ ♣ ♠`);
-                    plyr1.chipsBet = 2;
-                    acceptedWagerMssg();
-                } else {
-                    console.error(`
-                    Enter the numerical value of the amount of chips you'd like to wager,
-                    or leave it blank & press the Enter key to wager the table minimum.
-                    Negative values are definitely not an option.`);
-                    askWager();
-                    chipsPromptFxn();
-                }
-            } else {
-                invalidInput();
-                console.error(`
-                    Enter the numerical value of the amount of chips you'd like to wager,
-                    or leave it blank & press the Enter key to wager the table minimum.`);
-                askWager();
-                chipsPromptFxn();
-            }
-            return;
-        };
-
-        const playAgainSwitch = () => {
-            let playAgainPrompt = ynPrompt();
-
-            switch (playAgainPrompt) {
-                case 'y':
-                    playHand();
-                    break;
-                case 'n':
-                    anotherTimeMssg();
-                    break;
-                default:
-                    invalidInput();
-                    askPlayAgain();
-                    playAgainSwitch();
-            }
-            return;
-        };
-
-        /**
-         * checks if the player has moola; if so, asks if player wants to play another round [askPlayAgain()] & provides the prompt [playAgainSwitch()]; if not, informs player there is no moola left
-         * @returns void
-         */
-        const checkMoolaToPlay = () => {
-            if (plyr1.moola) {
-                askPlayAgain();
-                playAgainSwitch();
-                // yes ? check if "enough" cards in deck to play another hand or if have to reshuffle
-            } else {
-                console.log(`
-                    Seems you've no coin to wager, friend.`);
-            }
-            return;
-        };
-
-        /**
-         * deal cards alternating between player & dealer
-         * @param {*} plyr - string; the player
-         * @param {*} dealer - string; the dealer
-         * @returns void
-         */
-        const dealCards = (plyr, dealer) => {
-            plyr.currentHand.push(new Card());
-            dealer.currentHand.push(new Card());
-            plyr.currentHand.push(new Card());
-            dealer.currentHand.push(new Card());
-            return;
-        };
-
-        /**
-         * compares player's hand with dealer's hand; moves moolah based on result of the comparison; tells player the result
-         * @param {*} player - string; player name
-         * @param {*} dealer - string; dealer name
-         * @param {*} bet - number; pulled from player class
-         * @returns string; hand results mssg
-         */
-        const handsComp = (player, dealer, bet) => {
-            if (player.handVal > dealer.handVal) {
-                player._winHand(bet);
-                return youWonMssg();
-            } else if (player.handVal < dealer.handVal) {
-                player._lossHand(bet);
-                return youLostMssg();
-            } else {
-                return tiedMssg(); // tie/push = wager returned
-            }
-        };
 
         /*
          * Instantiate Players
@@ -456,83 +536,8 @@ const initBJ = () => {
         /*
          * Deal New Hand
          */
-        const playHand = () => {
-            if (dealer.handVal) {
-                plyr1.resetHand();
-                dealer.resetHand();
-            }
-
-            askWager();
-            chipsPromptFxn();
-
-            // show number of chips bet w/ their value & number of chips left in stash w/ their value
-            // tie/push = wager returned
-
-            dealCards(plyr1, dealer);
-
-            /*
-             * Playing While Loop
-             */
-            let playing = true;
-            while (playing) {
-                printHandsPreReveal(plyr1, dealer);
-
-                if (plyr1.handVal > 21) {
-                    playing = false;
-                    console.log(youLostMssg());
-                    // subtract wager from moola
-                    plyr1._lossHand(plyr1.chipsBet);
-
-                    // show moola
-
-                    checkMoolaToPlay();
-                } else if (plyr1.handVal == 21) {
-                    playing = false;
-                    console.log(youWonMssg()); // unless tied/push - CHANGE TO CHECK DEALER'S HAND FIRST; ALLOW DEALER LOGIC
-                    // add rest of winning mssg
-                    // swap out of this for more plyr autonomy ??
-
-                    //add wager to moola
-                    plyr1._winHand(plyr1.chipsBet);
-
-                    askPlayAgain();
-                    playAgainSwitch(); // double check this works - w/ default
-                    // yes ? check if "enough" cards in deck to play another hand or if have to reshuffle
-                } else {
-                    console.log(`
-                            Would you like another card?`);
-                    let hitOrHold = ynPrompt();
-                    switch (hitOrHold) {
-                        case 'y':
-                            plyr1.addCard();
-                            break;
-                        case 'n':
-                            // add the dealer hitOrHold logic -- add logic to show loss as soon as over 21 -- see below
-
-                            console.log(`
-                            The dealer's cards are:
-                            ${dealer.showHand()}
-                            The value of the dealer's hand is ${dealer.handVal}.
-
-                            Your cards are:
-                            ${plyr1.showHand()}
-                            The value of your hand is ${plyr1.handVal}.
-                            
-                            ${handsComp(plyr1, dealer, plyr1.chipsBet)}`);
-
-                            // show moola
-
-                            playing = false;
-                            checkMoolaToPlay();
-                            break;
-                        default:
-                            invalidInput();
-                    }
-                }
-            }
-            return;
-        };
-        playHand();
+        playHand(plyr1, dealer);
+        // fix handVal error
     } else if (newTable === 'n') {
         anotherTimeMssg();
     } else {
