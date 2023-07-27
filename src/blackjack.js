@@ -262,28 +262,12 @@ const initBJ = () => {
     /**
      * prints message confirming that the player has wagered a number of chips (determined by the player) out of the number of chips they have remaining in their Moola
      * @param {string} plyr player name
-     * @param {number} chips number of chips player has remaining in their Moola
+     * @param {number} chips number of chips player is wagering
      * @returns void
      */
     const acceptedWagerMssg = (plyr, chips = 2) =>
         console.log(`
-                You have wagered ${chips} of your ${plyr.chips} chips.`);
-
-    /**
-     * prints the opening message:
-     * • greeting,
-     * • explanation of cash to chips,
-     * • asks if player is ready to begin
-     * @returns void
-     */
-    const askPlayBJ = () =>
-        console.log(`
-    
-        ♣ ♠ ♦ ♥  BJ21  ♠ ♣ ♦ ♥
-        Hello, friend. There is a $50 minimum wager per round at this table.
-        When you're ready, I'll take your cash [starting with $10000] and
-        provide you with the equivalent as $25 chips.
-        Are you ready to play BJ21?`);
+                You have wagered ${chips} of your ${plyr.chips} chips.`); // show cash value also??
 
     /**
      * prints game exit message
@@ -300,6 +284,22 @@ const initBJ = () => {
     const askPlayAgain = () =>
         console.log(`
                     Would you like to play another hand?`);
+
+    /**
+     * prints the opening message:
+     * • greeting,
+     * • explanation of cash to chips,
+     * • asks if player is ready to begin
+     * @returns void
+     */
+    const askPlayBJ = () =>
+        console.log(`
+
+        ♣ ♠ ♦ ♥  BJ21  ♠ ♣ ♦ ♥
+        Hello, friend. There is a $50 minimum wager per round at this table.
+        When you're ready, I'll take your cash [starting with $10000] and
+        provide you with the equivalent as $25 chips.
+        Are you ready to play BJ21?`);
 
     /**
      * prints:
@@ -386,7 +386,7 @@ const initBJ = () => {
     };
 
     /**
-     * prompts player to enter numerical value for number of chips to be wagered; also handles invalid input
+     * prompts player to enter numerical value for number of chips to be wagered; includes acceptedWagerMssg(); also handles invalid input
      * @param {string} plyr player name
      * @returns void
      */
@@ -519,18 +519,10 @@ const initBJ = () => {
             plyr.resetHand();
             dealer.resetHand();
         }
-
         askWager(plyr);
         chipsPromptFxn(plyr);
-
-        // show number of chips bet w/ their value & number of chips left in stash w/ their value
-        // tie/push = wager returned
-
         dealCards(plyr, dealer);
-
-        /*
-         * Playing While Loop
-         */
+        //  Playing While Loop
         let playing = true;
         while (playing) {
             printHandsPreReveal(plyr, dealer);
@@ -538,7 +530,6 @@ const initBJ = () => {
             if (plyr.handVal > 21) {
                 playing = false;
                 console.log(youLostMssg());
-                // subtract wager from moola
                 plyr._lossHand(plyr.chipsBet);
 
                 // show moola
@@ -608,14 +599,9 @@ const initBJ = () => {
     let newTable = ynPrompt();
     if (newTable === 'y') {
         const deck1 = new Deck();
-        /*
-         * Instantiate Players
-         */
         const plyr1 = new Player(); // sub var for player name retrieved from prompt ??
         const theDealer = new Dealer();
-        /*
-         * Deal New Hand
-         */
+        // Deal New Hand
         playHand(plyr1, theDealer);
     } else if (newTable === 'n') {
         anotherTimeMssg();
