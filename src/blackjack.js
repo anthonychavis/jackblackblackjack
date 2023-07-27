@@ -465,7 +465,7 @@ const initBJ = () => {
 
                 // show moola
 
-                checkMoolaToPlay(plyr);
+                checkMoolaToPlay(plyr, dealer);
             } else if (plyr.handVal == 21) {
                 playing = false;
                 console.log(youWonMssg()); // unless tied/push - CHANGE TO CHECK DEALER'S HAND FIRST; ALLOW DEALER LOGIC
