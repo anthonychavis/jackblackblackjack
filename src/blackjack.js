@@ -250,6 +250,7 @@ class Dealer extends Hand {
     } // back to Hand if multiplayer
 }
 
+//
 /**
  * launch bj21
  * @returns void
@@ -385,7 +386,7 @@ const initBJ = () => {
     };
 
     /**
-     * prompts player to enter numerical value of number of chips to be wagered
+     * prompts player to enter numerical value for number of chips to be wagered; also handles invalid input
      * @param {string} plyr player name
      * @returns void
      */
