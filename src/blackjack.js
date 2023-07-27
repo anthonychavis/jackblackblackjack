@@ -250,15 +250,31 @@ class Dealer extends Hand {
     } // back to Hand if multiplayer
 }
 
-//
+/**
+ * launch bj21
+ * @returns void
+ */
 const initBJ = () => {
     /*
      * Message Fxns
+     */
+    /**
+     * prints message confirming that the player has wagered a number of chips (determined by the player) out of the number of chips they have remaining in their Moola
+     * @param {string} plyr player name
+     * @param {number} chips number of chips player has remaining in their Moola
+     * @returns void
      */
     const acceptedWagerMssg = (plyr, chips = 2) =>
         console.log(`
                 You have wagered ${chips} of your ${plyr.chips} chips.`);
 
+    /**
+     * prints the opening message:
+     * • greeting,
+     * • explanation of cash to chips,
+     * • asks if player is ready to begin
+     * @returns void
+     */
     const askPlayBJ = () =>
         console.log(`
     
@@ -268,14 +284,30 @@ const initBJ = () => {
         provide you with the equivalent as $25 chips.
         Are you ready to play BJ21?`);
 
+    /**
+     * prints game exit message
+     * @returns void
+     */
     const anotherTimeMssg = () =>
         console.log(`
                     Perhaps another time.`);
 
+    /**
+     * prints string asking player if they want to play another hand
+     * @returns void
+     */
     const askPlayAgain = () =>
         console.log(`
                     Would you like to play another hand?`);
 
+    /**
+     * prints:
+     * • number of chips, & their value, player has remaining
+     * • asks player how many chips they'd like to wager for the next hand
+     * • informs player of the default wager of the table minimum of $50
+     * @param {string} plyr player name
+     * @returns void
+     */
     const askWager = plyr =>
         console.log(`
                     You have ${plyr.chips} $25 chips with a value of $${plyr.moola}.
@@ -283,11 +315,23 @@ const initBJ = () => {
                     [Note: You may proceed without entering a value to
                     automatically wager the table minimum ($50)].`);
 
+    /**
+     * via printing, informs player of an invalid input
+     * @returns void
+     */
     const invalidInput = () =>
         console.error(`
             
         WHOA! Might wanna slow down on the drinks, friend. Starting to slur your answers. Try answering again.`);
 
+    /**
+     * prints:
+     * • dealer's cards
+     * • player's cards & their value
+     * @param {string} player player name
+     * @param {string} dealer dealer name
+     * @returns void
+     */
     const printHandsPreReveal = (player, dealer) =>
         console.log(`
                             The dealer's cards are:
@@ -298,12 +342,24 @@ const initBJ = () => {
                             The value of your hand is ${player.handVal}.
                                 `);
 
+    /**
+     * player tied with dealer message
+     * @returns {string} string
+     */
     const tiedMssg = () => `
                         Draw. Nothing lost; nothing gained.`; // aka push
 
+    /**
+     * player defeat message
+     * @returns {string} defeat message
+     */
     const youLostMssg = () => `
                         You've lost this hand........`;
 
+    /**
+     * player victory message
+     * @returns {string} victory message
+     */
     const youWonMssg = () => `
                         You won!!!!!!!!!!!`;
 
@@ -312,6 +368,8 @@ const initBJ = () => {
      */
     /**
      * checks if the player has moola; if so, asks if player wants to play another round [askPlayAgain()] & provides the prompt [playAgainSwitch()]; if not, informs player there is no moola left
+     * @param {string} plyr - the player
+     * @param {string} dealer - the dealer
      * @returns void
      */
     const checkMoolaToPlay = (plyr, dealer) => {
@@ -326,6 +384,11 @@ const initBJ = () => {
         return;
     };
 
+    /**
+     * prompts player to enter numerical value of number of chips to be wagered
+     * @param {string} plyr player name
+     * @returns void
+     */
     const chipsPromptFxn = plyr => {
         let chips = prompt(`
                 number of chips >> `).trim();
@@ -387,8 +450,8 @@ const initBJ = () => {
 
     /**
      * deal cards alternating between player & dealer
-     * @param {*} plyr - string; the player
-     * @param {*} dealer - string; the dealer
+     * @param {string} plyr - player name
+     * @param {string} dealer - dealer name
      * @returns void
      */
     const dealCards = (plyr, dealer) => {
@@ -401,10 +464,10 @@ const initBJ = () => {
 
     /**
      * compares player's hand with dealer's hand; moves moolah based on result of the comparison; tells player the result
-     * @param {*} player - string; player name
-     * @param {*} dealer - string; dealer name
-     * @param {*} bet - number; pulled from player class
-     * @returns string; hand results mssg
+     * @param {string} player - player name
+     * @param {string} dealer - dealer name
+     * @param {number} bet - pulled from player class
+     * @returns {string} hand results mssg
      */
     const handsComp = (player, dealer, bet) => {
         if (player.handVal > dealer.handVal) {
@@ -418,6 +481,13 @@ const initBJ = () => {
         }
     };
 
+    /**
+     * provides prompt for askPlayAgain();
+     * evaluates prompt response with switch statement
+     * @param {string} plyr player name
+     * @param {string} dealer dealer name
+     * @returns void
+     */
     const playAgainSwitch = (plyr, dealer) => {
         let playAgainPrompt = ynPrompt();
 
@@ -436,6 +506,13 @@ const initBJ = () => {
         return;
     };
 
+    /**
+     * majority of game logic
+     *  --> improve this fxn description l8r !!
+     * @param {string} plyr player name
+     * @param {string} dealer dealer name
+     * @returns void
+     */
     const playHand = (plyr, dealer) => {
         if (dealer.handVal) {
             plyr.resetHand();
@@ -513,6 +590,10 @@ const initBJ = () => {
         return;
     };
 
+    /**
+     * follows a printed question; prompts user for a y (yes) or n (no) response to the question that precedes it
+     * @returns string
+     */
     const ynPrompt = () =>
         prompt(`
                 (y/n) >> `)
