@@ -328,6 +328,27 @@ const initBJ = () => {
                     automatically wager the table minimum ($50)].`);
 
     /**
+     * prints:
+     * • dealer's cards & hand value,
+     * • player's cards & hand value,
+     * • handsComp()
+     * @param {string} plyr
+     * @param {string} dealer
+     * @returns void
+     */
+    const handResultsMssg = (plyr, dealer) =>
+        console.log(`
+                        The dealer's cards are:
+                        ${dealer.showHand()}
+                        The value of the dealer's hand is ${dealer.handVal}.
+
+                        Your cards are:
+                        ${plyr.showHand()}
+                        The value of your hand is ${plyr.handVal}.
+                        
+                        ${handsComp(plyr, dealer, plyr.chipsBet)}`);
+
+    /**
      * via printing, informs player of an invalid input
      * @returns void
      */
@@ -549,16 +570,7 @@ const initBJ = () => {
             } else if (plyr.handVal == 21) {
                 playing = false;
                 dealer._hitOrHold();
-                console.log(`
-                    The dealer's cards are:
-                    ${dealer.showHand()}
-                    The value of the dealer's hand is ${dealer.handVal}.
-
-                    Your cards are:
-                    ${plyr.showHand()}
-                    The value of your hand is ${plyr.handVal}.
-                    
-                    ${handsComp(plyr, dealer, plyr.chipsBet)}`);
+                handResultsMssg(plyr, dealer);
 
                 // swap out of this for more plyr autonomy ??
 
@@ -578,16 +590,7 @@ const initBJ = () => {
                         break;
                     case 'n':
                         dealer._hitOrHold();
-                        console.log(`
-                        The dealer's cards are:
-                        ${dealer.showHand()}
-                        The value of the dealer's hand is ${dealer.handVal}.
-
-                        Your cards are:
-                        ${plyr.showHand()}
-                        The value of your hand is ${plyr.handVal}.
-                        
-                        ${handsComp(plyr, dealer, plyr.chipsBet)}`);
+                        handResultsMssg(plyr, dealer);
 
                         // show moola
 
