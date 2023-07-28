@@ -471,7 +471,7 @@ const initBJ = () => {
      * @returns {string} hand results mssg
      */
     const handsComp = (player, dealer, bet) => {
-        if (player.handVal > dealer.handVal) {
+        if (player.handVal > dealer.handVal || dealer.handVal > 21) {
             player._winHand(bet);
             return youWonMssg();
         } else if (player.handVal < dealer.handVal) {
@@ -537,19 +537,20 @@ const initBJ = () => {
                 checkMoolaToPlay(plyr, dealer);
             } else if (plyr.handVal == 21) {
                 playing = false;
-                // unless tied/push - CHANGE TO CHECK DEALER'S HAND FIRST; ALLOW DEALER LOGIC
-                // while (dealer.handVal < 17) {
-                //     dealer.addCard();
-                // }
+                while (dealer.handVal < 17) {
+                    dealer.addCard();
+                }
+                console.log(`
+                    The dealer's cards are:
+                    ${dealer.showHand()}
+                    The value of the dealer's hand is ${dealer.handVal}.
 
-                // if (dealer.handVal != 21) {
-                //     console.log(youWonMssg());
-                // } else {
-                //     tiedMssg();
-                // }
+                    Your cards are:
+                    ${plyr.showHand()}
+                    The value of your hand is ${plyr.handVal}.
+                    
+                    ${handsComp(plyr, dealer, plyr.chipsBet)}`);
 
-                // add rest of winning mssg
-                // show dealer cards
                 // swap out of this for more plyr autonomy ??
 
                 //add wager to moola
@@ -567,11 +568,9 @@ const initBJ = () => {
                         plyr.addCard();
                         break;
                     case 'n':
-                        // add the dealer hitOrHold logic -- add logic to show loss as soon as over 21 -- see below
-                        // while (dealer.handVal < 17) {
-                        //     dealer.addCard();
-                        // }
-
+                        while (dealer.handVal < 17) {
+                            dealer.addCard();
+                        }
                         console.log(`
                         The dealer's cards are:
                         ${dealer.showHand()}
