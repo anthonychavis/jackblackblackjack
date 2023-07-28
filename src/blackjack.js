@@ -243,6 +243,17 @@ class Dealer extends Hand {
         super();
     }
 
+    /**
+     * add cards to dealer's hand while the hand value is less than 17
+     * @returns void
+     */
+    _hitOrHold() {
+        while (this.handVal < 17) {
+            this.addCard();
+        }
+        return;
+    }
+
     privateHand() {
         let [, ...hand] = this.currentHand;
         const upCards = hand.map(el => el.revealCard());
@@ -502,7 +513,7 @@ const initBJ = () => {
             default:
                 invalidInput();
                 askPlayAgain();
-                playAgainSwitch();
+                playAgainSwitch(plyr, dealer);
         }
         return;
     };
@@ -537,9 +548,7 @@ const initBJ = () => {
                 checkMoolaToPlay(plyr, dealer);
             } else if (plyr.handVal == 21) {
                 playing = false;
-                while (dealer.handVal < 17) {
-                    dealer.addCard();
-                }
+                dealer._hitOrHold();
                 console.log(`
                     The dealer's cards are:
                     ${dealer.showHand()}
@@ -568,9 +577,7 @@ const initBJ = () => {
                         plyr.addCard();
                         break;
                     case 'n':
-                        while (dealer.handVal < 17) {
-                            dealer.addCard();
-                        }
+                        dealer._hitOrHold();
                         console.log(`
                         The dealer's cards are:
                         ${dealer.showHand()}
@@ -629,8 +636,6 @@ initBJ();
 console.log(shuffledDeck?.length); // optional chain b/c moved globals into initBJ
 
 /**
- * dealer to stand if >16
- *
  * reread about #decks
  * --> dealer's shoe ??
  *      --> 4, 6, or 8 decks
