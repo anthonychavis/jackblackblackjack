@@ -537,15 +537,26 @@ const initBJ = () => {
                 checkMoolaToPlay(plyr, dealer);
             } else if (plyr.handVal == 21) {
                 playing = false;
-                console.log(youWonMssg()); // unless tied/push - CHANGE TO CHECK DEALER'S HAND FIRST; ALLOW DEALER LOGIC
+                // unless tied/push - CHANGE TO CHECK DEALER'S HAND FIRST; ALLOW DEALER LOGIC
+                // while (dealer.handVal < 17) {
+                //     dealer.addCard();
+                // }
+
+                // if (dealer.handVal != 21) {
+                //     console.log(youWonMssg());
+                // } else {
+                //     tiedMssg();
+                // }
+
                 // add rest of winning mssg
+                // show dealer cards
                 // swap out of this for more plyr autonomy ??
 
                 //add wager to moola
                 plyr._winHand(plyr.chipsBet);
 
                 askPlayAgain();
-                playAgainSwitch(); // double check this works - w/ default
+                playAgainSwitch(plyr, dealer);
                 // yes ? check if "enough" cards in deck to play another hand or if have to reshuffle
             } else {
                 console.log(`
@@ -557,6 +568,9 @@ const initBJ = () => {
                         break;
                     case 'n':
                         // add the dealer hitOrHold logic -- add logic to show loss as soon as over 21 -- see below
+                        // while (dealer.handVal < 17) {
+                        //     dealer.addCard();
+                        // }
 
                         console.log(`
                         The dealer's cards are:
