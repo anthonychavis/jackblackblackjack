@@ -67,7 +67,7 @@ class Deck {
         for (let suit of this.suits) {
             for (let i = 1; i < 14; i++) {
                 cardObj = {
-                    face: (this.strCardsFace[i] || i) + '',
+                    face: this.strCardsFace[i] || i + '',
                     suit: suit,
                     value: this.strCardsValue[i] || i,
                 };
@@ -510,7 +510,7 @@ const initBJ = () => {
             player._lossHand(bet);
             return youLostMssg();
         } else {
-            return tiedMssg(); // tie/push = wager returned
+            return tiedMssg(); // tie/push
         }
     };
 
