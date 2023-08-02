@@ -323,7 +323,7 @@ const initBJ = () => {
 
         ♣ ♠ ♦ ♥  BJ21  ♠ ♣ ♦ ♥
         Hello, friend. There is a $50 minimum wager per round at this table.
-        When you're ready, I'll take your cash [starting with $10000] and
+        When you're ready, I'll take your cash [starting with $10,000] and
         provide you with the equivalent as $25 chips.
         Are you ready to play BJ21?`);
 
@@ -337,7 +337,9 @@ const initBJ = () => {
      */
     const askWager = plyr =>
         console.log(`
-                    You have ${plyr.chips} $25 chips with a value of $${plyr.moola}.
+                    You have ${
+                        plyr.chips
+                    } $25 chips with a value of $${plyr.moola.toLocaleString()}.
                     How many chips would you like to wager? (numerical value only)
                     [Note: You may proceed without entering a value to
                     automatically wager the table minimum ($50)].`);
