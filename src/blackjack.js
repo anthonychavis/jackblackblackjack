@@ -1,5 +1,3 @@
-// testing commit from mobile
-
 // create prompting fxn & allow users to exit the program
 const prompt = require('prompt-sync')({ sigint: true });
 
@@ -19,7 +17,6 @@ class Card {
 
     constructor() {
         this.#dealTopCard();
-        // this.revealCard();
     }
 
     #dealTopCard() {
@@ -29,12 +26,15 @@ class Card {
     }
 
     revealCard() {
-        // this.#dealTopCard();
         return this.#topCard.face + this.#topCard.suit[0].toUpperCase();
     }
 
     get value() {
         return this.#value;
+    }
+
+    set value(val) {
+        this.#value = val;
     }
 }
 
@@ -61,7 +61,7 @@ class Deck {
     }
 
     deckGen() {
-        // {face: ##, suit: ##, value: ##}
+        // {face: string, suit: string, value: ##}
         let cardObj;
 
         for (let suit of this.suits) {
@@ -107,8 +107,8 @@ class Hand {
         return;
     }
 
-    #aceInHandCalc(index = 0) {
-        return this.currentHand.reduce((sum, card) => {
+    #aceInHandCalc(hand, index = 0) {
+        return hand.reduce((sum, card) => {
             let cardVal;
             isNaN(card.value)
                 ? (cardVal = card.value[index])
@@ -117,18 +117,29 @@ class Hand {
         }, 0);
     }
 
-    #handValFxn() {
-        const checkForAce = this.currentHand.some(card => isNaN(card.value));
-        if (checkForAce) {
-            const highAce = this.#aceInHandCalc(1);
-            return highAce <= 21 ? highAce : this.#aceInHandCalc();
-        } else {
-            return this.currentHand.reduce(
-                (sum, card) => (sum += card.value),
-                0
-            );
+    #handlingAces() {
+        const aceHand = [...this.currentHand];
+        let decreasingAces = this.#aceInHandCalc(aceHand, 1);
+        while (this.#checkForAce(aceHand) && decreasingAces > 21) {
+            const firstAceIndex = aceHand.findIndex(card => isNaN(card.value));
+            aceHand[firstAceIndex].value = 1;
+            decreasingAces = this.#aceInHandCalc(aceHand, 1);
         }
-    } // fix for multiple aces in hand !??!
+        return decreasingAces;
+    }
+
+    #checkForAce(hand) {
+        return hand.some(card => isNaN(card.value));
+    }
+
+    #handValFxn() {
+        if (this.#checkForAce(this.currentHand)) {
+            const highAce = this.#aceInHandCalc(this.currentHand, 1);
+            return highAce <= 21 ? highAce : this.#handlingAces();
+        } else {
+            return this.#reduceCardsVal(this.currentHand);
+        }
+    }
 
     resetHand() {
         this.currentHand = [];
@@ -137,6 +148,10 @@ class Hand {
 
     showHand() {
         return this.currentHand.map(card => card.revealCard()).join(' | ');
+    }
+
+    #reduceCardsVal(cards) {
+        return cards.reduce((sum, card) => (sum += card.value), 0);
     }
 
     get handVal() {
@@ -574,9 +589,6 @@ const initBJ = () => {
 
                 // swap out of this for more plyr autonomy ??
 
-                //add wager to moola
-                plyr._winHand(plyr.chipsBet);
-
                 askPlayAgain();
                 playAgainSwitch(plyr, dealer);
                 // yes ? check if "enough" cards in deck to play another hand or if have to reshuffle
@@ -591,7 +603,6 @@ const initBJ = () => {
                     case 'n':
                         dealer._hitOrHold();
                         handResultsMssg(plyr, dealer);
-
                         // show moola
 
                         playing = false;
@@ -639,6 +650,8 @@ initBJ();
 console.log(shuffledDeck?.length); // optional chain b/c moved globals into initBJ
 
 /**
+ * look into removing some code now that the new handVal for multi aces is made
+ *
  * reread about #decks
  * --> dealer's shoe ??
  *      --> 4, 6, or 8 decks
