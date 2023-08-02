@@ -1,287 +1,289 @@
-// create prompting fxn & allow users to exit the program
-const prompt = require('prompt-sync')({ sigint: true });
-
-/*
- * GLOBAL VARS (for now)
- */
-// let deck = [];
-let shuffledDeck;
-
-/*
- * CLASSES
- */
-//
-class Card {
-    #topCard;
-    #value;
-
-    constructor() {
-        this.#dealTopCard();
-    }
-
-    #dealTopCard() {
-        this.#topCard = shuffledDeck.pop();
-        this.#value = this.#topCard.value;
-        return;
-    }
-
-    revealCard() {
-        return this.#topCard.face + this.#topCard.suit[0].toUpperCase();
-    }
-
-    get value() {
-        return this.#value;
-    }
-
-    set value(val) {
-        this.#value = val;
-    }
-}
-
-//
-class Deck {
-    deck = []; // make private
-    // shuffledDeck;
-    suits = ['spade', 'club', 'heart', 'diamond'];
-    strCardsFace = {
-        1: 'A',
-        11: 'J',
-        12: 'Q',
-        13: 'K',
-    };
-    strCardsValue = {
-        1: [1, 11],
-        11: 10,
-        12: 10,
-        13: 10,
-    };
-
-    constructor() {
-        this.shuffle();
-    }
-
-    deckGen() {
-        // {face: string, suit: string, value: number | number[]
-        let cardObj;
-
-        for (let suit of this.suits) {
-            for (let i = 1; i < 14; i++) {
-                cardObj = {
-                    face: this.strCardsFace[i] || i + '',
-                    suit: suit,
-                    value: this.strCardsValue[i] || i,
-                };
-                this.deck.push(cardObj);
-            }
-        }
-        return;
-    }
-
-    shuffle() {
-        if (!this.deck.length) this.deckGen();
-
-        shuffledDeck = [...this.deck]; // something if not yet shuffled ??
-
-        // Durstenfeld shuffle
-        for (let i = shuffledDeck.length - 1; i > 0; i--) {
-            const ranNum = Math.floor(Math.random() * (i + 1));
-            [shuffledDeck[i], shuffledDeck[ranNum]] = [
-                shuffledDeck[ranNum],
-                shuffledDeck[i],
-            ];
-        }
-        return;
-    }
-}
-
-//
-class Hand {
-    // allCards = []; // what was this for ??
-    currentHand = [];
-    // #handVal;
-
-    constructor() {}
-
-    addCard() {
-        this.currentHand.push(new Card());
-        return;
-    }
-
-    #aceInHandCalc(hand, index = 0) {
-        return hand.reduce((sum, card) => {
-            let cardVal;
-            isNaN(card.value)
-                ? (cardVal = card.value[index])
-                : (cardVal = card.value);
-            return (sum += cardVal);
-        }, 0);
-    }
-
-    #handlingAces() {
-        const aceHand = [...this.currentHand];
-        let decreasingAces = this.#aceInHandCalc(aceHand, 1);
-        while (this.#checkForAce(aceHand) && decreasingAces > 21) {
-            const firstAceIndex = aceHand.findIndex(card => isNaN(card.value));
-            aceHand[firstAceIndex].value = 1;
-            decreasingAces = this.#aceInHandCalc(aceHand, 1);
-        }
-        return decreasingAces;
-    }
-
-    #checkForAce(hand) {
-        return hand.some(card => isNaN(card.value));
-    }
-
-    #handValFxn() {
-        if (this.#checkForAce(this.currentHand)) {
-            const highAce = this.#aceInHandCalc(this.currentHand, 1);
-            return highAce <= 21 ? highAce : this.#handlingAces();
-        } else {
-            return this.#reduceCardsVal(this.currentHand);
-        }
-    }
-
-    resetHand() {
-        this.currentHand = [];
-        return;
-    }
-
-    showHand() {
-        return this.currentHand.map(card => card.revealCard()).join(' | ');
-    }
-
-    #reduceCardsVal(cards) {
-        return cards.reduce((sum, card) => (sum += card.value), 0);
-    }
-
-    get handVal() {
-        return this.#handValFxn();
-    }
-}
-
-//
-class Moola {
-    #moola = 10_000;
-    #numOfChips = 0;
-    #chipsBet;
-    #quarterChips = 25;
-
-    constructor() {
-        this.#cashToChips(this.#moola);
-    }
-
-    #cashToChips(cash) {
-        this.#numOfChips = cash / this.#quarterChips; // if only using "quarters"
-        return;
-    }
-
-    #chipsToCash(numChips) {
-        this.#moola = numChips * this.#quarterChips; // if only using "quarters"
-        return;
-    } // numChips if using this method of placing bet
-
-    _lossHand(bet) {
-        this.#numOfChips -= bet;
-        this.#chipsToCash(this.#numOfChips);
-        return;
-    }
-
-    _winHand(bet) {
-        this.#numOfChips += bet;
-        this.#chipsToCash(this.#numOfChips);
-        return;
-    }
-
-    get moola() {
-        return this.#moola;
-    }
-
-    get chips() {
-        return this.#numOfChips;
-    }
-
-    get chipsBet() {
-        return this.#chipsBet;
-    }
-
-    set chipsBet(numChips) {
-        this.#chipsBet = numChips;
-        return;
-    }
-
-    // set moola(cash) {
-    //     this.#moola = cash;
-    // } // if allowing player to set amt ??
-}
-
-//
-class Player extends Hand {
-    #plyrMoola = new Moola();
-
-    constructor() {
-        super();
-    }
-
-    _lossHand(bet) {
-        return this.#plyrMoola._lossHand(bet);
-    }
-
-    _winHand(bet) {
-        return this.#plyrMoola._winHand(bet);
-    }
-
-    get chips() {
-        return this.#plyrMoola.chips;
-    }
-
-    get chipsBet() {
-        return this.#plyrMoola.chipsBet;
-    }
-
-    get moola() {
-        return this.#plyrMoola.moola;
-    }
-
-    set chipsBet(numChips) {
-        this.#plyrMoola.chipsBet = numChips;
-        return;
-    }
-
-    // set moola(cash) {
-    //     this.#plyrMoola.moola = cash;
-    // } // if allowing player to set amt ??
-}
-
-//
-class Dealer extends Hand {
-    constructor() {
-        super();
-    }
-
-    /**
-     * add cards to dealer's hand while the hand value is less than 17
-     * @returns void
-     */
-    _hitOrHold() {
-        while (this.handVal < 17) {
-            this.addCard();
-        }
-        return;
-    }
-
-    privateHand() {
-        let [, ...hand] = this.currentHand;
-        const upCards = hand.map(el => el.revealCard());
-        return `** | ${upCards.join(' | ')}`;
-    } // back to Hand if multiplayer
-}
-
 //
 /**
  * launch bj21
  * @returns void
  */
 const initBJ = () => {
+    // create prompting fxn & allow users to exit the program
+    const prompt = require('prompt-sync')({ sigint: true });
+
+    /*
+     *
+     */
+    // let deck = [];
+    let shuffledDeck; // move ??
+
+    /*
+     * CLASSES
+     */
+    //
+    class Card {
+        #topCard;
+        #value;
+
+        constructor() {
+            this.#dealTopCard();
+        }
+
+        #dealTopCard() {
+            this.#topCard = shuffledDeck.pop();
+            this.#value = this.#topCard.value;
+            return;
+        }
+
+        revealCard() {
+            return this.#topCard.face + this.#topCard.suit[0].toUpperCase();
+        }
+
+        get value() {
+            return this.#value;
+        }
+
+        set value(val) {
+            this.#value = val;
+        }
+    }
+
+    //
+    class Deck {
+        deck = []; // make private
+        // shuffledDeck;
+        suits = ['spade', 'club', 'heart', 'diamond'];
+        strCardsFace = {
+            1: 'A',
+            11: 'J',
+            12: 'Q',
+            13: 'K',
+        };
+        strCardsValue = {
+            1: [1, 11],
+            11: 10,
+            12: 10,
+            13: 10,
+        };
+
+        constructor() {
+            this.shuffle();
+        }
+
+        deckGen() {
+            // {face: string, suit: string, value: number | number[]
+            let cardObj;
+
+            for (let suit of this.suits) {
+                for (let i = 1; i < 14; i++) {
+                    cardObj = {
+                        face: this.strCardsFace[i] || i + '',
+                        suit: suit,
+                        value: this.strCardsValue[i] || i,
+                    };
+                    this.deck.push(cardObj);
+                }
+            }
+            return;
+        }
+
+        shuffle() {
+            if (!this.deck.length) this.deckGen();
+
+            shuffledDeck = [...this.deck]; // something if not yet shuffled ??
+
+            // Durstenfeld shuffle
+            for (let i = shuffledDeck.length - 1; i > 0; i--) {
+                const ranNum = Math.floor(Math.random() * (i + 1));
+                [shuffledDeck[i], shuffledDeck[ranNum]] = [
+                    shuffledDeck[ranNum],
+                    shuffledDeck[i],
+                ];
+            }
+            return;
+        }
+    }
+
+    //
+    class Hand {
+        // allCards = []; // what was this for ??
+        currentHand = [];
+        // #handVal;
+
+        constructor() {}
+
+        addCard() {
+            this.currentHand.push(new Card());
+            return;
+        }
+
+        #aceInHandCalc(hand, index = 0) {
+            return hand.reduce((sum, card) => {
+                let cardVal;
+                isNaN(card.value)
+                    ? (cardVal = card.value[index])
+                    : (cardVal = card.value);
+                return (sum += cardVal);
+            }, 0);
+        }
+
+        #handlingAces() {
+            const aceHand = [...this.currentHand];
+            let decreasingAces = this.#aceInHandCalc(aceHand, 1);
+            while (this.#checkForAce(aceHand) && decreasingAces > 21) {
+                const firstAceIndex = aceHand.findIndex(card =>
+                    isNaN(card.value)
+                );
+                aceHand[firstAceIndex].value = 1;
+                decreasingAces = this.#aceInHandCalc(aceHand, 1);
+            }
+            return decreasingAces;
+        }
+
+        #checkForAce(hand) {
+            return hand.some(card => isNaN(card.value));
+        }
+
+        #handValFxn() {
+            if (this.#checkForAce(this.currentHand)) {
+                const highAce = this.#aceInHandCalc(this.currentHand, 1);
+                return highAce <= 21 ? highAce : this.#handlingAces();
+            } else {
+                return this.#reduceCardsVal(this.currentHand);
+            }
+        }
+
+        resetHand() {
+            this.currentHand = [];
+            return;
+        }
+
+        showHand() {
+            return this.currentHand.map(card => card.revealCard()).join(' | ');
+        }
+
+        #reduceCardsVal(cards) {
+            return cards.reduce((sum, card) => (sum += card.value), 0);
+        }
+
+        get handVal() {
+            return this.#handValFxn();
+        }
+    }
+
+    //
+    class Moola {
+        #moola = 10_000;
+        #numOfChips = 0;
+        #chipsBet;
+        #quarterChips = 25;
+
+        constructor() {
+            this.#cashToChips(this.#moola);
+        }
+
+        #cashToChips(cash) {
+            this.#numOfChips = cash / this.#quarterChips; // if only using "quarters"
+            return;
+        }
+
+        #chipsToCash(numChips) {
+            this.#moola = numChips * this.#quarterChips; // if only using "quarters"
+            return;
+        } // numChips if using this method of placing bet
+
+        _lossHand(bet) {
+            this.#numOfChips -= bet;
+            this.#chipsToCash(this.#numOfChips);
+            return;
+        }
+
+        _winHand(bet) {
+            this.#numOfChips += bet;
+            this.#chipsToCash(this.#numOfChips);
+            return;
+        }
+
+        get moola() {
+            return this.#moola;
+        }
+
+        get chips() {
+            return this.#numOfChips;
+        }
+
+        get chipsBet() {
+            return this.#chipsBet;
+        }
+
+        set chipsBet(numChips) {
+            this.#chipsBet = numChips;
+            return;
+        }
+
+        // set moola(cash) {
+        //     this.#moola = cash;
+        // } // if allowing player to set amt ??
+    }
+
+    //
+    class Player extends Hand {
+        #plyrMoola = new Moola();
+
+        constructor() {
+            super();
+        }
+
+        _lossHand(bet) {
+            return this.#plyrMoola._lossHand(bet);
+        }
+
+        _winHand(bet) {
+            return this.#plyrMoola._winHand(bet);
+        }
+
+        get chips() {
+            return this.#plyrMoola.chips;
+        }
+
+        get chipsBet() {
+            return this.#plyrMoola.chipsBet;
+        }
+
+        get moola() {
+            return this.#plyrMoola.moola;
+        }
+
+        set chipsBet(numChips) {
+            this.#plyrMoola.chipsBet = numChips;
+            return;
+        }
+
+        // set moola(cash) {
+        //     this.#plyrMoola.moola = cash;
+        // } // if allowing player to set amt ??
+    }
+
+    //
+    class Dealer extends Hand {
+        constructor() {
+            super();
+        }
+
+        /**
+         * add cards to dealer's hand while the hand value is less than 17
+         * @returns void
+         */
+        _hitOrHold() {
+            while (this.handVal < 17) {
+                this.addCard();
+            }
+            return;
+        }
+
+        privateHand() {
+            let [, ...hand] = this.currentHand;
+            const upCards = hand.map(el => el.revealCard());
+            return `** | ${upCards.join(' | ')}`;
+        } // back to Hand if multiplayer
+    }
+
     /*
      * Message Fxns
      */
