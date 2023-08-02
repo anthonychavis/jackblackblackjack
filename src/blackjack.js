@@ -61,7 +61,7 @@ class Deck {
     }
 
     deckGen() {
-        // {face: string, suit: string, value: ##}
+        // {face: string, suit: string, value: number | number[]
         let cardObj;
 
         for (let suit of this.suits) {
@@ -497,39 +497,6 @@ const initBJ = () => {
     };
 
     /**
-     * deal cards alternating between player & dealer
-     * @param {string} plyr - player name
-     * @param {string} dealer - dealer name
-     * @returns void
-     */
-    const dealCards = (plyr, dealer) => {
-        plyr.currentHand.push(new Card());
-        dealer.currentHand.push(new Card());
-        plyr.currentHand.push(new Card());
-        dealer.currentHand.push(new Card());
-        return;
-    };
-
-    /**
-     * compares player's hand with dealer's hand; moves moolah based on result of the comparison; tells player the result
-     * @param {string} player - player name
-     * @param {string} dealer - dealer name
-     * @param {number} bet - pulled from player class
-     * @returns {string} hand results mssg
-     */
-    const handsComp = (player, dealer, bet) => {
-        if (player.handVal > dealer.handVal || dealer.handVal > 21) {
-            player._winHand(bet);
-            return youWonMssg();
-        } else if (player.handVal < dealer.handVal) {
-            player._lossHand(bet);
-            return youLostMssg();
-        } else {
-            return tiedMssg(); // tie/push
-        }
-    };
-
-    /**
      * provides prompt for askPlayAgain();
      * evaluates prompt response with switch statement
      * @param {string} plyr player name
@@ -589,8 +556,7 @@ const initBJ = () => {
 
                 // swap out of this for more plyr autonomy ??
 
-                askPlayAgain();
-                playAgainSwitch(plyr, dealer);
+                checkMoolaToPlay(plyr, dealer);
                 // yes ? check if "enough" cards in deck to play another hand or if have to reshuffle
             } else {
                 console.log(`
@@ -625,6 +591,43 @@ const initBJ = () => {
                 (y/n) >> `)
             .trim()
             .toLowerCase();
+
+    /*
+     * OTHER FXNS
+     */
+
+    /**
+     * deal cards alternating between player & dealer
+     * @param {string} plyr - player name
+     * @param {string} dealer - dealer name
+     * @returns void
+     */
+    const dealCards = (plyr, dealer) => {
+        plyr.currentHand.push(new Card());
+        dealer.currentHand.push(new Card());
+        plyr.currentHand.push(new Card());
+        dealer.currentHand.push(new Card());
+        return;
+    };
+
+    /**
+     * compares player's hand with dealer's hand; moves moolah based on result of the comparison; tells player the result
+     * @param {string} player - player name
+     * @param {string} dealer - dealer name
+     * @param {number} bet - pulled from player class
+     * @returns {string} hand results mssg
+     */
+    const handsComp = (player, dealer, bet) => {
+        if (player.handVal > dealer.handVal || dealer.handVal > 21) {
+            player._winHand(bet);
+            return youWonMssg();
+        } else if (player.handVal < dealer.handVal) {
+            player._lossHand(bet);
+            return youLostMssg();
+        } else {
+            return tiedMssg(); // tie/push
+        }
+    };
 
     /*
      * Game Flow
