@@ -7,9 +7,6 @@ const initBJ = () => {
     // create prompting fxn & allow users to exit the program
     const prompt = require('prompt-sync')({ sigint: true });
 
-    /*
-     *
-     */
     // let deck = [];
     let shuffledDeck; // move ??
 
@@ -650,13 +647,14 @@ const initBJ = () => {
         invalidInput();
         initBJ();
     }
+    console.log(shuffledDeck?.length);
     return;
 };
 initBJ();
 
-console.log(shuffledDeck?.length); // optional chain b/c moved globals into initBJ
-
 /**
+ * HONEY DO
+ *
  * look into removing some code now that the new handVal for multi aces is made
  *
  * reread about #decks
@@ -668,17 +666,14 @@ console.log(shuffledDeck?.length); // optional chain b/c moved globals into init
  * allow player to play more than one hand/rd ??
  * --> a wager is made/hand each rd
  *      --> req minimum wager of 2x table minimum / hand / rd
- *
- * allow chip exchange ??
- * allow player to enter cash amt to exchange for chips ??
- * --> if so, change launch mssg
- *
  * incorporate split for 2ofKind hand
  * --> 2 plyr hands
  * --> wager/hand
  * --> prompt option for split when 2ofKind
  *
- * for Ace, use typeof?? & calculate handVal - if max less than 21, apply max, otherwise apply min
+ * allow chip exchange ??
+ * allow player to enter cash amt to exchange for chips ??
+ * --> if so, change launch mssg
  *
  *  if bulding rules,
  * --> explain shown cards format
@@ -688,21 +683,14 @@ console.log(shuffledDeck?.length); // optional chain b/c moved globals into init
  * REMEMBER to make fields/methods private (maybe)
  * use modules
  * use typescript
- * separate prompts into fxns ??
  *
- * based on "face up" value of player hand && dealer handVal relative to 21, dealer decides hitOrHold ?? [no, stick to rules on site]
- * --> have dealer be more conservative/aggro at random ?? [no, stick to rules on site]
- *
- * "show" both face down cards when both player & dealer decide to hold
- * --> transfer moola accordingly
+ * when plyr & dealer hold:
  * --> print winner, how they won, amt moola transferred, moola balance
- * --> prompt to play another hand if moola != 0
+ * print moola after win/loss !!
  *
  * remove recursion w/ while loop ??
  *
- * look into cleaning up  moola transfers
- *
- * print moola after win/loss !!
+ * look into cleaning up moola transfers
  *
  * add fxn documentation
  * --> look into the standard
